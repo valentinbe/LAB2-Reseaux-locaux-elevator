@@ -13,6 +13,8 @@ Public Class Elevator
     Private floor_memory As Integer() = {10, 10, 10, 10, 10, 10, 10}
     Private index_current_floor As Integer
     Private index_last_saved_floor As Integer
+    Private datagram(12) As Byte
+    Private transactionID As Short
 
     Private Sub ConnectToServer_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles ConnectToServer.Click
         If Not clientIsRunning Then
@@ -497,6 +499,27 @@ Public Class Elevator
     Private Sub ButtonCallFloor3_Click(sender As Object, e As EventArgs) Handles ButtonCallFloor3.Click
         floor_memory(index_last_saved_floor) = 3
         index_last_saved_floor = index_inc(index_last_saved_floor)
+    End Sub
+
+    Private Sub FillDatagram(FuncCode As Byte, Data As Integer)
+        datagram(0) = BitConverter.GetBytes(transactionID)(0)
+        datagram(1) = BitConverter.GetBytes(transactionID)(1)
+
+        datagram(2) = 0
+        datagram(3) = 0
+
+        datagram(6) = 1
+        datagram(7) = FuncCode
+
+        Select Case FuncCode
+            Case &H1
+                datagram(4) = BitConverter.GetBytes(Data)(0)
+                datagram(5)=
+            Case &H2
+            Case &H5
+            Case &HF
+        End Select
+
     End Sub
 
 End Class
