@@ -502,15 +502,26 @@ Public Class Elevator
         index_last_saved_floor = index_inc(index_last_saved_floor)
     End Sub
 
-    Private Sub ReadMultipleCoils()
+    ''' <summary>
+    ''' Permet au client de lire la valeur de plusieurs bobines (UP/ DOWN) en même temps
+    ''' </summary>
+    ''' <param name="StartAddress">Adresse à partir de laquelle on sélectionne les bobines. Par défaut 0</param>
+    ''' <param name="BitCount">Nombre de bobines: ici 2</param>
+    ''' <remarks></remarks>
+    Private Sub ReadMultipleCoils(StartAddress As Integer, BitCount As Integer)
+        Dim tempData As Integer
+         tempData = BitCount
+        StartAddress = StartAddress << 8
+        tempData = tempData + StartAddress
 
+        FillDatagram(1, tempData)
     End Sub
 
     ''' <summary>
     ''' Permet au client de modifier plusieurs bobines (UP/ DOWN) en même temps
     ''' </summary>
-    ''' <param name="StartAddress">Adresse des bobines. Par défaut 0</param>
-    ''' <param name="BitCount">Nombre de bobines: 2</param>
+    ''' <param name="StartAddress">Adresse à partir de laquelle on sélectionne les bobines. Par défaut 0</param>
+    ''' <param name="BitCount">Nombre de bobines: ici 2</param>
     ''' <param name="tempOutputValues">valeurs des bobines :0b11, 0b10, 0b..., 0b00</param>
     ''' <remarks></remarks>
     Private Sub WriteMultipleCoils(StartAddress As Integer, BitCount As Integer, tempOutputValues As Byte())
@@ -527,9 +538,14 @@ Public Class Elevator
         tempData = tempData + StartAddress
 
         FillDatagram(15, tempData, tempOutputValues)
-
     End Sub
 
+    ''' <summary>
+    ''' Permet au client de modifier une bobine (UP ou DOWN)
+    ''' </summary>
+    ''' <param name="OutputAddress">Adresse de la bobine</param>
+    ''' <param name="OutputValue">Valeurs de la bobine : 0 ou 1</param>
+    ''' <remarks></remarks>
     Private Sub WriteSingleCoil(OutputAddress As Integer, OutputValue As Integer)
         Dim tempData As Integer
         tempData = OutputValue
@@ -540,6 +556,10 @@ Public Class Elevator
         FillDatagram(5, tempData)
     End Sub
 
+    ''' <summary>
+    ''' Fonction pour obtenir l'état des 6 capteurs à partir de l'adresse 0
+    ''' </summary>
+    ''' <remarks></remarks>
     Private Sub InquireSensors()
         FillDatagram(2, 6)
         SendMessageToServer(datagram)
@@ -601,7 +621,6 @@ Public Class Elevator
                 temp.AddRange(DataFc15)
 
                 datagram = temp.ToArray()
-
         End Select
 
     End Sub
