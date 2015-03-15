@@ -226,17 +226,17 @@ Public Class Elevator
         'Bytes are in e.ReceivedBytes and you can encore the bytes to string using Encoding.ASCII.GetString(e.ReceivedBytes)
         'MessageBox.Show("Client says :" + Encoding.ASCII.GetString(e.ReceivedBytes), "I am Server")
 
-        transactionID = e.ReceivedBytes(0)
+        transactionID = e.ReceivedBytes(0) 'Peu utile
+
         Select Case (e.ReceivedBytes(7))
             Case &H1
-
+                ReadMultipleCoilsSlave(e.ReceivedBytes)
             Case &H2
-
+                InquireSensorsSlave(e.ReceivedBytes)
             Case &H5
-
+                WriteSingleCoilSlave(e.ReceivedBytes)
             Case &HF
                 WriteMultipleCoilsSlave(e.ReceivedBytes)
-
         End Select
         'BE CAREFUL!! 
         'If you want to change the properties of CoilUP/CoilDown/LedSensor... here, you must use safe functions. 
@@ -244,16 +244,16 @@ Public Class Elevator
 
 
         ' recoit les ordres de mouvement du maitre et des demandes detat des sensors
-        If demande detat des leds then 
-            Me.SendMessageToServer(last_sensor_checked)
-        ElseIf recoit ordres mouvements
-            Me.SendMessageToServer(acknowledge)
-            If CoilUP est recu Then
-                modifie CoilUP
-            ElseIf CoilDown est recu Then
-                mofifie CoilDown
-            End If
-        End If
+        'If demande detat des leds then 
+        '    Me.SendMessageToServer(last_sensor_checked)
+        'ElseIf recoit ordres mouvements
+        '    Me.SendMessageToServer(acknowledge)
+        '    If CoilUP est recu Then
+        '        modifie CoilUP
+        '    ElseIf CoilDown est recu Then
+        '        mofifie CoilDown
+        '    End If
+        'End If
     End Sub
 
     'quand on appuie sur coil up
@@ -516,6 +516,17 @@ Public Class Elevator
 
 #Region "MODBUS Server_to_Client"
 
+    Private Sub ReadMultipleCoilsSlave(ReceivedDatagram As Byte())
+
+    End Sub
+
+    Private Sub InquireSensorsSlave(ReceivedDatagram As Byte())
+
+    End Sub
+    Private Sub WriteSingleCoilSlave(ReceivedDatagram As Byte())
+
+    End Sub
+
     ''' <summary>
     ''' Permet au serveur de modifier l'état des bobines en fonction des données reçues et envoie une réponse au client.
     ''' </summary>
@@ -531,13 +542,16 @@ Public Class Elevator
                 Select Case ReceivedDatagram(13)
                     Case 1
                         CoilUP.Checked = True
+                        CoilDown.Checked = False
                     Case 2
                         CoilDown.Checked = True
+                        CoilUP.Checked = False
                 End Select
 
                 For i = 0 To 11
                     datagram(i) = ReceivedDatagram(i)
                 Next
+                'Réponse vers le client
                 SendMessageToClient(datagram)
             End If
         End If
