@@ -224,8 +224,20 @@ Public Class Elevator
     Private Sub ReceivedDataFromClient(ByVal sender As Object, ByVal e As AsyncEventArgs) ' si lesclave recoit des données
         'Add some stuff to interpret messages (and remove the next line!)
         'Bytes are in e.ReceivedBytes and you can encore the bytes to string using Encoding.ASCII.GetString(e.ReceivedBytes)
-        MessageBox.Show("Client says :" + Encoding.ASCII.GetString(e.ReceivedBytes), "I am Server")
+        'MessageBox.Show("Client says :" + Encoding.ASCII.GetString(e.ReceivedBytes), "I am Server")
 
+        transactionID = e.ReceivedBytes(0)
+        Select Case (e.ReceivedBytes(7))
+            Case &H1
+
+            Case &H2
+
+            Case &H5
+
+            Case &HF
+                WriteMultipleCoilsSlave(e.ReceivedBytes)
+
+        End Select
         'BE CAREFUL!! 
         'If you want to change the properties of CoilUP/CoilDown/LedSensor... here, you must use safe functions. 
         'Functions for CoilUP and CoilDown are given (see SetCoilDown and SetCoilUP)
@@ -502,16 +514,48 @@ Public Class Elevator
         index_last_saved_floor = index_inc(index_last_saved_floor)
     End Sub
 
+#Region "MODBUS Server_to_Client"
+
+    ''' <summary>
+    ''' Permet au serveur de modifier l'état des bobines en fonction des données reçues et envoie une réponse au client.
+    ''' </summary>
+    ''' <param name="ReceivedDatagram">Tableau d'octets contenant les instructions du client MODBUS.</param>
+    ''' <remarks></remarks>
+    Private Sub WriteMultipleCoilsSlave(ReceivedDatagram As Byte())
+        Dim i As Integer = 0
+        'Est-ce que l'adresse de départ est supérieure à 2? (On a seulement deux bobines)
+        If Not (ReceivedDatagram(8) <> 0 And ReceivedDatagram(9) > 2) Then
+            'Est-ce que le nombre de bobines est supérieure à 2?
+            If Not (ReceivedDatagram(10) <> 0 And ReceivedDatagram(11) > 2) Then
+                'Si non dans les deux cas, alors:
+                Select Case ReceivedDatagram(13)
+                    Case 1
+                        CoilUP.Checked = True
+                    Case 2
+                        CoilDown.Checked = True
+                End Select
+
+                For i = 0 To 11
+                    datagram(i) = ReceivedDatagram(i)
+                Next
+                SendMessageToClient(datagram)
+            End If
+        End If
+
+    End Sub
+#End Region
+
+#Region "MODBUS_Client_to_Server"
     ''' <summary>
     ''' Permet au client de lire la valeur de plusieurs bobines (UP/ DOWN) en même temps
     ''' </summary>
     ''' <param name="StartAddress">Adresse à partir de laquelle on sélectionne les bobines. Par défaut 0</param>
     ''' <param name="BitCount">Nombre de bobines: ici 2</param>
     ''' <remarks></remarks>
-    Private Sub ReadMultipleCoils(StartAddress As Integer, BitCount As Integer)
+    Private Sub ReadMultipleCoilsMaster(StartAddress As Integer, BitCount As Integer)
         Dim tempData As Integer
-         tempData = BitCount
-        StartAddress = StartAddress << 8
+        tempData = BitCount
+        StartAddress = StartAddress << 16
         tempData = tempData + StartAddress
 
         FillDatagram(1, tempData)
@@ -522,9 +566,9 @@ Public Class Elevator
     ''' </summary>
     ''' <param name="StartAddress">Adresse à partir de laquelle on sélectionne les bobines. Par défaut 0</param>
     ''' <param name="BitCount">Nombre de bobines: ici 2</param>
-    ''' <param name="tempOutputValues">valeurs des bobines :0b11, 0b10, 0b..., 0b00</param>
+    ''' <param name="tempOutputValues">valeurs des bobines :0b11, 0b10, 0b..., 0b00. Ici un tableau de une case (Seulement deux bobines)</param>
     ''' <remarks></remarks>
-    Private Sub WriteMultipleCoils(StartAddress As Integer, BitCount As Integer, tempOutputValues As Byte())
+    Private Sub WriteMultipleCoilsMaster(StartAddress As Integer, BitCount As Integer, tempOutputValues As Byte())
         Dim tempList As List(Of Byte)
         Dim tempData As Integer
 
@@ -534,7 +578,7 @@ Public Class Elevator
         tempOutputValues = tempList.ToArray()
 
         tempData = BitCount
-        StartAddress = StartAddress << 8
+        StartAddress = StartAddress << 16
         tempData = tempData + StartAddress
 
         FillDatagram(15, tempData, tempOutputValues)
@@ -546,10 +590,10 @@ Public Class Elevator
     ''' <param name="OutputAddress">Adresse de la bobine</param>
     ''' <param name="OutputValue">Valeurs de la bobine : 0 ou 1</param>
     ''' <remarks></remarks>
-    Private Sub WriteSingleCoil(OutputAddress As Integer, OutputValue As Integer)
+    Private Sub WriteSingleCoilMaster(OutputAddress As Integer, OutputValue As Integer)
         Dim tempData As Integer
         tempData = OutputValue
-        OutputAddress = OutputAddress << 8
+        OutputAddress = OutputAddress << 16
 
         tempData = tempData + OutputAddress
 
@@ -560,7 +604,7 @@ Public Class Elevator
     ''' Fonction pour obtenir l'état des 6 capteurs à partir de l'adresse 0
     ''' </summary>
     ''' <remarks></remarks>
-    Private Sub InquireSensors()
+    Private Sub InquireSensorsMaster()
         FillDatagram(2, 6)
         SendMessageToServer(datagram)
     End Sub
@@ -575,8 +619,8 @@ Public Class Elevator
     Private Sub FillDatagram(FuncCode As Byte, Data As Integer, Optional DataFc15 As Byte() = Nothing)
         ReDim datagram(11)
 
-        datagram(0) = BitConverter.GetBytes(transactionID)(0)
-        datagram(1) = BitConverter.GetBytes(transactionID)(1)
+        datagram(0) = BitConverter.GetBytes(transactionID)(1)
+        datagram(1) = BitConverter.GetBytes(transactionID)(0)
 
         datagram(2) = 0
         datagram(3) = 0
@@ -624,5 +668,6 @@ Public Class Elevator
         End Select
 
     End Sub
+#End Region
 
 End Class
