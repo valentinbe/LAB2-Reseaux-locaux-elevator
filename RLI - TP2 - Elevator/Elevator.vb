@@ -501,7 +501,15 @@ Public Class Elevator
         index_last_saved_floor = index_inc(index_last_saved_floor)
     End Sub
 
-    Private Sub FillDatagram(FuncCode As Byte, Data As Integer)
+    ''' <summary>
+    ''' Fonction pour remplir le datagramme MODBUS/TCP
+    ''' </summary>
+    ''' <param name="FuncCode">Octet identifiant la fonction MODBUS utilisé</param>
+    ''' <param name="Data">Quatre octets identifiants les données à traiter</param>
+    ''' <param name="FC15Data">Données supplémentaires pour FC15 (optionnel)</param>
+    ''' <remarks></remarks>
+    Private Sub FillDatagram(FuncCode As Byte, Data As Integer, Optional FC15Data As Byte() = Nothing)
+
         datagram(0) = BitConverter.GetBytes(transactionID)(0)
         datagram(1) = BitConverter.GetBytes(transactionID)(1)
 
@@ -511,13 +519,34 @@ Public Class Elevator
         datagram(6) = 1
         datagram(7) = FuncCode
 
+        datagram.
+
         Select Case FuncCode
             Case &H1
-                datagram(4) = BitConverter.GetBytes(Data)(0)
-                datagram(5)=
+                datagram(4) = 0
+                datagram(5) = 6
+                datagram(8) = BitConverter.GetBytes(Data)(0)
+                datagram(9) = BitConverter.GetBytes(Data)(1)
+                datagram(10) = BitConverter.GetBytes(Data)(2)
+                datagram(11) = BitConverter.GetBytes(Data)(3)
             Case &H2
+                datagram(4) = 0
+                datagram(5) = 6
+                datagram(8) = BitConverter.GetBytes(Data)(0)
+                datagram(9) = BitConverter.GetBytes(Data)(1)
+                datagram(10) = BitConverter.GetBytes(Data)(2)
+                datagram(11) = BitConverter.GetBytes(Data)(3)
             Case &H5
+                datagram(4) = 0
+                datagram(5) = 6
+                datagram(8) = BitConverter.GetBytes(Data)(0)
+                datagram(9) = BitConverter.GetBytes(Data)(1)
+                datagram(10) = BitConverter.GetBytes(Data)(2)
+                datagram(11) = 0
             Case &HF
+                Dim temp As List(Of Byte)
+
+
         End Select
 
     End Sub
