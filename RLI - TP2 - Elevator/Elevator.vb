@@ -14,7 +14,7 @@ Public Class Elevator
     Private index_current_floor As Integer
     Private index_last_saved_floor As Integer
     Private datagram As Byte()
-    Private transactionID As Short
+    Private transactionID As Short = 0
 
     Private Sub ConnectToServer_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles ConnectToServer.Click
         If Not clientIsRunning Then
@@ -89,6 +89,7 @@ Public Class Elevator
         If _socket IsNot Nothing Then
             If TryCast(_socket, AsynchronousClient) IsNot Nothing Then
                 Me._socket.SendMessage(msg)
+                transactionID = transactionID + 1
             End If
         End If
     End Sub
@@ -348,7 +349,7 @@ Public Class Elevator
                 Me.LedSensor3.BackColor = System.Drawing.Color.WhiteSmoke
                 Me.LedSensor4.BackColor = System.Drawing.Color.WhiteSmoke
             End If
-            Me.SendMessageToServer(Encoding.ASCII.GetBytes("Je monte ou je dessend"))
+            Me.SendMessageToServer(Encoding.ASCII.GetBytes("Je monte ou je descend"))
 
 
 
@@ -501,6 +502,20 @@ Public Class Elevator
         index_last_saved_floor = index_inc(index_last_saved_floor)
     End Sub
 
+    Private Sub WriteSingleCoil(OutputAddress As Integer, OutputValue As Integer)
+        Dim tempData As Integer
+        tempData = OutputValue
+        OutputAddress = OutputAddress << 8
+
+        tempData = tempData + OutputAddress
+
+        FillDatagram(5, tempData)
+    End Sub
+    Private Sub InquireSensors()
+        FillDatagram(2, 6)
+        SendMessageToServer(datagram)
+    End Sub
+
     ''' <summary>
     ''' Fonction pour remplir le datagramme MODBUS/TCP
     ''' </summary>
@@ -524,23 +539,23 @@ Public Class Elevator
             Case &H1
                 datagram(4) = 0
                 datagram(5) = 6
-                datagram(8) = BitConverter.GetBytes(Data)(0)
-                datagram(9) = BitConverter.GetBytes(Data)(1)
-                datagram(10) = BitConverter.GetBytes(Data)(2)
-                datagram(11) = BitConverter.GetBytes(Data)(3)
+                datagram(8) = BitConverter.GetBytes(Data)(3)
+                datagram(9) = BitConverter.GetBytes(Data)(2)
+                datagram(10) = BitConverter.GetBytes(Data)(1)
+                datagram(11) = BitConverter.GetBytes(Data)(0)
             Case &H2
                 datagram(4) = 0
                 datagram(5) = 6
-                datagram(8) = BitConverter.GetBytes(Data)(0)
-                datagram(9) = BitConverter.GetBytes(Data)(1)
-                datagram(10) = BitConverter.GetBytes(Data)(2)
-                datagram(11) = BitConverter.GetBytes(Data)(3)
+                datagram(8) = BitConverter.GetBytes(Data)(3)
+                datagram(9) = BitConverter.GetBytes(Data)(2)
+                datagram(10) = BitConverter.GetBytes(Data)(1)
+                datagram(11) = BitConverter.GetBytes(Data)(0)
             Case &H5
                 datagram(4) = 0
                 datagram(5) = 6
-                datagram(8) = BitConverter.GetBytes(Data)(0)
-                datagram(9) = BitConverter.GetBytes(Data)(1)
-                datagram(10) = BitConverter.GetBytes(Data)(2)
+                datagram(8) = BitConverter.GetBytes(Data)(3)
+                datagram(9) = BitConverter.GetBytes(Data)(2)
+                datagram(10) = BitConverter.GetBytes(Data)(1)
                 datagram(11) = 0
             Case &HF
                 Dim temp As New List(Of Byte)
@@ -548,10 +563,10 @@ Public Class Elevator
                 'Donc datagram(4) est toujours à 0
                 datagram(4) = 0
                 datagram(5) = DataFc15.Length + 6
-                datagram(8) = BitConverter.GetBytes(Data)(0)
-                datagram(9) = BitConverter.GetBytes(Data)(1)
-                datagram(10) = BitConverter.GetBytes(Data)(2)
-                datagram(11) = BitConverter.GetBytes(Data)(3)
+                datagram(8) = BitConverter.GetBytes(Data)(3)
+                datagram(9) = BitConverter.GetBytes(Data)(2)
+                datagram(10) = BitConverter.GetBytes(Data)(1)
+                datagram(11) = BitConverter.GetBytes(Data)(0)
 
                 temp.AddRange(datagram)
                 temp.AddRange(DataFc15)
