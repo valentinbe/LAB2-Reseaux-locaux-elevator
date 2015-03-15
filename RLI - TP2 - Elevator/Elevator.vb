@@ -516,15 +516,69 @@ Public Class Elevator
 
 #Region "MODBUS Server_to_Client"
 
+    ''' <summary>
+    ''' Permet au serveur d'envoyer au client l'état des bobines.
+    ''' </summary>
+    ''' <param name="ReceivedDatagram">Tableau d'octets contenant les instructions du client MODBUS.</param>
+    ''' <remarks></remarks>
     Private Sub ReadMultipleCoilsSlave(ReceivedDatagram As Byte())
+        Dim temp1 As Byte
+        Dim temp2 As Byte
+        'Est-ce que l'adresse de la bobine est supérieure ou égal à 2? (On a seulement deux bobines)
+        If Not (ReceivedDatagram(8) <> 0 And ReceivedDatagram(9) >= 2) Then
+            'Est-ce que le nombre de bobines est supérieure à 2?
+            If Not (ReceivedDatagram(10) <> 0 And ReceivedDatagram(11) > 2) Then
+                'Si non dans les deux cas, alors:
+                For i = 0 To 7
+                    datagram(i) = ReceivedDatagram(i)
+                Next
+                'Le nombre d'octet contenant l'état des bobines vaudra toujours 1 (Seulement deux bobines => 0x00, 0x01... 0x03)
+                datagram(8) = 1
 
+                temp1 = System.Convert.ToByte(CoilUP.Checked) And &H1
+                temp2 = System.Convert.ToByte(CoilUP.Checked) And &H1
+                temp2 = temp2 << 1
+                datagram(9) = temp1 + temp2
+
+                'Réponse vers le client
+                SendMessageToClient(datagram)
+            End If
+        End If
     End Sub
-
+    ''' <summary>
+    ''' Permet au serveur d'envoyer au client l'état des capteurs.
+    ''' </summary>
+    ''' <param name="ReceivedDatagram">Tableau d'octets contenant les instructions du client MODBUS.</param>
+    ''' <remarks></remarks>
     Private Sub InquireSensorsSlave(ReceivedDatagram As Byte())
 
     End Sub
+    ''' <summary>
+    ''' Permet au serveur de modifier l'état de la bobines choisie en fonction des données reçues et envoie une réponse au client.
+    ''' </summary>
+    ''' <param name="ReceivedDatagram">Tableau d'octets contenant les instructions du client MODBUS.</param>
+    ''' <remarks></remarks>
     Private Sub WriteSingleCoilSlave(ReceivedDatagram As Byte())
+        'Est-ce que l'adresse de la bobine est supérieure ou égal à 2? (On a seulement deux bobines)
+        If Not (ReceivedDatagram(8) <> 0 And ReceivedDatagram(9) >= 2) Then
+            'Est-ce que le nombre de bobines est supérieure à 2?
+            If Not (ReceivedDatagram(10) <> 0 And ReceivedDatagram(11) > 2) Then
+                'Si non dans les deux cas, alors:
+                Select Case ReceivedDatagram(9)
+                    Case 0
+                        CoilUP.Checked = System.Convert.ToBoolean(ReceivedDatagram(10))
+                    Case 1
+                        CoilDown.Checked = System.Convert.ToBoolean(ReceivedDatagram(10))
+                End Select
+            End If
 
+            For i = 0 To 11
+                datagram(i) = ReceivedDatagram(i)
+            Next
+            'Réponse vers le client
+            SendMessageToClient(datagram)
+
+        End If
     End Sub
 
     ''' <summary>
@@ -534,8 +588,8 @@ Public Class Elevator
     ''' <remarks></remarks>
     Private Sub WriteMultipleCoilsSlave(ReceivedDatagram As Byte())
         Dim i As Integer = 0
-        'Est-ce que l'adresse de départ est supérieure à 2? (On a seulement deux bobines)
-        If Not (ReceivedDatagram(8) <> 0 And ReceivedDatagram(9) > 2) Then
+        'Est-ce que l'adresse de départ est supérieure ou égal à 2? (On a seulement deux bobines)
+        If Not (ReceivedDatagram(8) <> 0 And ReceivedDatagram(9) >= 2) Then
             'Est-ce que le nombre de bobines est supérieure à 2?
             If Not (ReceivedDatagram(10) <> 0 And ReceivedDatagram(11) > 2) Then
                 'Si non dans les deux cas, alors:
@@ -555,7 +609,6 @@ Public Class Elevator
                 SendMessageToClient(datagram)
             End If
         End If
-
     End Sub
 #End Region
 
