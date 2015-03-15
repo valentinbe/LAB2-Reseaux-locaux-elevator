@@ -13,7 +13,7 @@ Public Class Elevator
     Private floor_memory As Integer() = {10, 10, 10, 10, 10, 10, 10}
     Private index_current_floor As Integer
     Private index_last_saved_floor As Integer
-    Private datagram(12) As Byte
+    Private datagram As Byte()
     Private transactionID As Short
 
     Private Sub ConnectToServer_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles ConnectToServer.Click
@@ -506,9 +506,10 @@ Public Class Elevator
     ''' </summary>
     ''' <param name="FuncCode">Octet identifiant la fonction MODBUS utilisé</param>
     ''' <param name="Data">Quatre octets identifiants les données à traiter</param>
-    ''' <param name="FC15Data">Données supplémentaires pour FC15 (optionnel)</param>
+    ''' <param name="DataFc15">Données supplémentaires pour FC15 (optionnel)</param>
     ''' <remarks></remarks>
-    Private Sub FillDatagram(FuncCode As Byte, Data As Integer, Optional FC15Data As Byte() = Nothing)
+    Private Sub FillDatagram(FuncCode As Byte, Data As Integer, Optional DataFc15 As Byte() = Nothing)
+        ReDim datagram(12)
 
         datagram(0) = BitConverter.GetBytes(transactionID)(0)
         datagram(1) = BitConverter.GetBytes(transactionID)(1)
@@ -518,8 +519,6 @@ Public Class Elevator
 
         datagram(6) = 1
         datagram(7) = FuncCode
-
-        datagram.
 
         Select Case FuncCode
             Case &H1
@@ -544,8 +543,20 @@ Public Class Elevator
                 datagram(10) = BitConverter.GetBytes(Data)(2)
                 datagram(11) = 0
             Case &HF
-                Dim temp As List(Of Byte)
+                Dim temp As New List(Of Byte)
+                'La fonction FC15 de MODBUS permet au maximum de modifier l'état de 256 bits, ce qui amène à un maximum de 32 octets (256/8) pour définir l'état des bits.
+                'Donc datagram(4) est toujours à 0
+                datagram(4) = 0
+                datagram(5) = DataFc15.Length + 6
+                datagram(8) = BitConverter.GetBytes(Data)(0)
+                datagram(9) = BitConverter.GetBytes(Data)(1)
+                datagram(10) = BitConverter.GetBytes(Data)(2)
+                datagram(11) = BitConverter.GetBytes(Data)(3)
 
+                temp.AddRange(datagram)
+                temp.AddRange(DataFc15)
+
+                datagram = temp.ToArray()
 
         End Select
 
