@@ -15,7 +15,7 @@ Public Class Elevator
     Private index_last_saved_floor As Integer
     Private datagram As Byte()
     Private transactionID As Short = 0
-
+#Region "not to be touched"
     Private Sub ConnectToServer_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles ConnectToServer.Click
         If Not clientIsRunning Then
             Me.clientIsRunning = True
@@ -125,9 +125,7 @@ Public Class Elevator
     End Sub
 
 
-
-
-
+#End Region
 
 
 
@@ -296,15 +294,18 @@ Public Class Elevator
         If direction = -1 Then
             CoilUP.Checked = False
             CoilDown.Checked = True
-            Me.SendMessageToServer(envoi de letat des deux coil)
+            WriteMultipleCoilsMaster(11111111111111111111111111111111111111111111111111111111111111111111111111111111111)
+            Me.SendMessageToServer(datagram)
         ElseIf direction = 1 Then
             CoilUP.Checked = True
             CoilDown.Checked = False
-            Me.SendMessageToServer(envoi de letat des deux coil)
+            WriteMultipleCoilsMaster(11111111111111111111111111111111111111111111111111111111111111111111111111111111111)
+            Me.SendMessageToServer(datagram)
         Else
             CoilUP.Checked = False
             CoilDown.Checked = False
-            Me.SendMessageToServer(envoi de letat des deux coil)
+            WriteMultipleCoilsMaster(11111111111111111111111111111111111111111111111111111111111111111111111111111111111)
+            Me.SendMessageToServer(datagram)
         End If
     End Sub
 
@@ -367,9 +368,9 @@ Public Class Elevator
 
         ElseIf clientIsRunning Then ' si on est le maitre
             ' on envoi les requetes etat de sensor
-            Me.SendMessageToServer(Encoding.ASCII.GetBytes("demande etat de chaque sensor"))
-
-
+            demande etat de chaque sensor au slave :
+            ReadMultipleCoilsMaster(11111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111)
+            Me.SendMessageToServer(datagram)
 
         Else ' si on est offline
             If index_current_floor <= index_last_saved_floor Then
