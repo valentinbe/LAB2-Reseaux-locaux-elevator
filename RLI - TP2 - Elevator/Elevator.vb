@@ -144,6 +144,7 @@ Public Class Elevator
                 CoilDown.Checked = System.Convert.ToBoolean((e.ReceivedBytes(9) >> 1) And &H1)
             Case &H2
                 'On récupère l'état des capteurs
+                'Pb: Si l'ascenseur est à l'arrêt à un étage, on ne sait pas où il est car tous les capteurs sont à 0
                 LedSensor0 = System.Convert.ToBoolean()
                 LedSensor1 = System.Convert.ToBoolean()
                 LedSensor2 = System.Convert.ToBoolean()
