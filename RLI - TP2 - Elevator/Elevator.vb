@@ -140,8 +140,15 @@ Public Class Elevator
         Select Case e.ReceivedBytes(7)
             Case &H1
                 'On récupère l'état des bobines
+                CoilUP.Checked = System.Convert.ToBoolean(e.ReceivedBytes(9) And &H1)
+                CoilDown.Checked = System.Convert.ToBoolean((e.ReceivedBytes(9) >> 1) And &H1)
             Case &H2
                 'On récupère l'état des capteurs
+                LedSensor0 = System.Convert.ToBoolean()
+                LedSensor1 = System.Convert.ToBoolean()
+                LedSensor2 = System.Convert.ToBoolean()
+                LedSensor3 = System.Convert.ToBoolean()
+                LedSensor4 = System.Convert.ToBoolean()
             Case &H5
                 'Pour le moment peu utile
             Case &HF
