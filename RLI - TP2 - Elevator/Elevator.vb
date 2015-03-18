@@ -127,7 +127,45 @@ Public Class Elevator
 
 #End Region
 
-    Private Sub direction_update()
+
+
+    '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+    ' YOUR JOB START HERE. You don't have to modify another file!
+    '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+    Private Sub ReceivedDataFromServer(ByVal sender As Object, ByVal e As AsyncEventArgs) ' si le maitre recoit des données
+        'Add some stuff to interpret messages (and remove the next line!)
+        'Bytes are in e.ReceivedBytes and you can encore the bytes to string using Encoding.ASCII.GetString(e.ReceivedBytes)
+        'MessageBox.Show("Server says :" + Encoding.ASCII.GetString(e.ReceivedBytes), "I am Client")
+
+        Select Case e.ReceivedBytes(7)
+            Case &H1
+                'On récupère l'état des bobines
+                CoilUP.Checked = System.Convert.ToBoolean(e.ReceivedBytes(9) And &H1)
+                CoilDown.Checked = System.Convert.ToBoolean((e.ReceivedBytes(9) >> 1) And &H1)
+            Case &H2
+                'On récupère l'état des capteurs
+                'Pb: Si l'ascenseur est à l'arrêt à un étage, on ne sait pas où il est car tous les capteurs sont à 0
+                LedSensor0 = System.Convert.ToBoolean()
+                LedSensor1 = System.Convert.ToBoolean()
+                LedSensor2 = System.Convert.ToBoolean()
+                LedSensor3 = System.Convert.ToBoolean()
+                LedSensor4 = System.Convert.ToBoolean()
+            Case &H5
+                'Pour le moment peu utile
+            Case &HF
+                'Pour le moment peu utile
+        End Select
+
+        'BE CAREFUL!! 
+        'If you want to change the properties of CoilUP/CoilDown/LedSensor... here, you must use safe functions. 
+        'Functions for CoilUP and CoilDown are given (see SetCoilDown and SetCoilUP)
+
+
+        ' recoit soit des acknowledge, soit des infos sur les sensors
+        ' si on recoit infos sensors alors on les stock dans variables
+        last_sensor_checked = les infos recues 
+
+        ' on modifie les ordres de direction en consequence (A METTRE SOIT LA SOIT DANS LE POOLING)
         If index_current_floor <= index_last_saved_floor Then
             Select Case last_sensor_checked
                 Case 0
@@ -197,37 +235,7 @@ Public Class Elevator
                     mouvement(0)
             End Select
         End If
-    End Sub
 
-    '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-    ' YOUR JOB START HERE. You don't have to modify another file!
-    '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-    Private Sub ReceivedDataFromServer(ByVal sender As Object, ByVal e As AsyncEventArgs) ' si le maitre recoit des données
-        'Add some stuff to interpret messages (and remove the next line!)
-        'Bytes are in e.ReceivedBytes and you can encore the bytes to string using Encoding.ASCII.GetString(e.ReceivedBytes)
-        'MessageBox.Show("Server says :" + Encoding.ASCII.GetString(e.ReceivedBytes), "I am Client")
-
-        Select Case e.ReceivedBytes(7)
-            Case &H1
-                'On récupère l'état des bobines
-            Case &H2
-                'On récupère l'état des capteurs
-            Case &H5
-                'Pour le moment peu utile
-            Case &HF
-                'Pour le moment peu utile
-        End Select
-
-        'BE CAREFUL!! 
-        'If you want to change the properties of CoilUP/CoilDown/LedSensor... here, you must use safe functions. 
-        'Functions for CoilUP and CoilDown are given (see SetCoilDown and SetCoilUP)
-
-        ' recoit soit des acknowledge, soit des infos sur les sensors
-        ' si on recoit infos sensors alors on les stock dans variables
-        last_sensor_checked = les infos recues 
-
-        ' on modifie les ordres de direction en consequence (A METTRE SOIT LA SOIT DANS LE POOLING)
-        direction_update()
     End Sub
 
     Private Sub ReceivedDataFromClient(ByVal sender As Object, ByVal e As AsyncEventArgs) ' si lesclave recoit des données
@@ -375,6 +383,8 @@ Public Class Elevator
             End If
             Me.SendMessageToServer(Encoding.ASCII.GetBytes("Je monte ou je descend"))
 
+
+
         ElseIf clientIsRunning Then ' si on est le maitre
             ' on envoi les requetes etat de sensor
             demande etat de chaque sensor au slave :
@@ -382,120 +392,116 @@ Public Class Elevator
             Me.SendMessageToServer(datagram)
 
         Else ' si on est offline
-            gestion_deplacements_offline()
-        End If
-    End Sub
+            If index_current_floor <= index_last_saved_floor Then
 
-    Private Sub gestion_deplacements_offline()
-        If index_current_floor <= index_last_saved_floor Then
-
-            Select Case last_sensor_checked
-                Case 0
-                    direction = 1
-                Case 1
-                    direction = -1
-                Case 2
-                    direction = -1
-                Case 3
-                    direction = -1
-                Case 4
-                    direction = -1
-                Case Else
-                    direction = 0
-            End Select
-
-            Select Case floor_memory(index_current_floor)
-                Case 0
-                    If direction = 1 And Not Me.ElevatorPhys.Location.Y = Me.PositionSensor1.Location.Y Then
-                        Me.ElevatorPhys.Location = New Point(Me.ElevatorPhys.Location.X, Me.ElevatorPhys.Location.Y - 1)
-                    ElseIf direction = -1 And Not (Me.ElevatorPhys.Location.Y + Me.ElevatorPhys.Size.Height) = (Me.PositionSensor0.Location.Y + Me.PositionSensor0.Size.Height) Then
-                        Me.ElevatorPhys.Location = New Point(Me.ElevatorPhys.Location.X, Me.ElevatorPhys.Location.Y + 1)
-                    ElseIf ((direction = 1 And Me.ElevatorPhys.Location.Y = Me.PositionSensor1.Location.Y) Or (direction = -1 And (Me.ElevatorPhys.Location.Y + Me.ElevatorPhys.Size.Height) = (Me.PositionSensor0.Location.Y + Me.PositionSensor0.Size.Height))) Then
-                        System.Threading.Thread.Sleep(1000)
+                Select Case last_sensor_checked
+                    Case 0
+                        direction = 1
+                    Case 1
+                        direction = -1
+                    Case 2
+                        direction = -1
+                    Case 3
+                        direction = -1
+                    Case 4
+                        direction = -1
+                    Case Else
                         direction = 0
-                        If index_current_floor < index_last_saved_floor Then
-                            index_current_floor = index_inc(index_current_floor)
+                End Select
+
+                Select Case floor_memory(index_current_floor)
+                    Case 0
+                        If direction = 1 And Not Me.ElevatorPhys.Location.Y = Me.PositionSensor1.Location.Y Then
+                            Me.ElevatorPhys.Location = New Point(Me.ElevatorPhys.Location.X, Me.ElevatorPhys.Location.Y - 1)
+                        ElseIf direction = -1 And Not (Me.ElevatorPhys.Location.Y + Me.ElevatorPhys.Size.Height) = (Me.PositionSensor0.Location.Y + Me.PositionSensor0.Size.Height) Then
+                            Me.ElevatorPhys.Location = New Point(Me.ElevatorPhys.Location.X, Me.ElevatorPhys.Location.Y + 1)
+                        ElseIf ((direction = 1 And Me.ElevatorPhys.Location.Y = Me.PositionSensor1.Location.Y) Or (direction = -1 And (Me.ElevatorPhys.Location.Y + Me.ElevatorPhys.Size.Height) = (Me.PositionSensor0.Location.Y + Me.PositionSensor0.Size.Height))) Then
+                            System.Threading.Thread.Sleep(1000)
+                            direction = 0
+                            If index_current_floor < index_last_saved_floor Then
+                                index_current_floor = index_inc(index_current_floor)
+                            End If
                         End If
-                    End If
-                Case 1
-                    If direction = 1 And Not Me.ElevatorPhys.Location.Y = Me.PositionSensor2.Location.Y Then
-                        Me.ElevatorPhys.Location = New Point(Me.ElevatorPhys.Location.X, Me.ElevatorPhys.Location.Y - 1)
-                    ElseIf direction = -1 And Not (Me.ElevatorPhys.Location.Y + Me.ElevatorPhys.Size.Height) = (Me.PositionSensor1.Location.Y + Me.PositionSensor0.Size.Height) Then
-                        Me.ElevatorPhys.Location = New Point(Me.ElevatorPhys.Location.X, Me.ElevatorPhys.Location.Y + 1)
-                    ElseIf (direction = 1 And Me.ElevatorPhys.Location.Y = Me.PositionSensor2.Location.Y) Or (direction = -1 And (Me.ElevatorPhys.Location.Y + Me.ElevatorPhys.Size.Height) = (Me.PositionSensor1.Location.Y + Me.PositionSensor1.Size.Height)) Then
-                        System.Threading.Thread.Sleep(1000)
-                        direction = 0
-                        If index_current_floor < index_last_saved_floor Then
-                            index_current_floor = index_inc(index_current_floor)
+                    Case 1
+                        If direction = 1 And Not Me.ElevatorPhys.Location.Y = Me.PositionSensor2.Location.Y Then
+                            Me.ElevatorPhys.Location = New Point(Me.ElevatorPhys.Location.X, Me.ElevatorPhys.Location.Y - 1)
+                        ElseIf direction = -1 And Not (Me.ElevatorPhys.Location.Y + Me.ElevatorPhys.Size.Height) = (Me.PositionSensor1.Location.Y + Me.PositionSensor0.Size.Height) Then
+                            Me.ElevatorPhys.Location = New Point(Me.ElevatorPhys.Location.X, Me.ElevatorPhys.Location.Y + 1)
+                        ElseIf (direction = 1 And Me.ElevatorPhys.Location.Y = Me.PositionSensor2.Location.Y) Or (direction = -1 And (Me.ElevatorPhys.Location.Y + Me.ElevatorPhys.Size.Height) = (Me.PositionSensor1.Location.Y + Me.PositionSensor1.Size.Height)) Then
+                            System.Threading.Thread.Sleep(1000)
+                            direction = 0
+                            If index_current_floor < index_last_saved_floor Then
+                                index_current_floor = index_inc(index_current_floor)
+                            End If
                         End If
-                    End If
-                Case 2
-                    If direction = 1 And Not Me.ElevatorPhys.Location.Y = Me.PositionSensor3.Location.Y Then
-                        Me.ElevatorPhys.Location = New Point(Me.ElevatorPhys.Location.X, Me.ElevatorPhys.Location.Y - 1)
-                    ElseIf direction = -1 And Not (Me.ElevatorPhys.Location.Y + Me.ElevatorPhys.Size.Height) = (Me.PositionSensor2.Location.Y + Me.PositionSensor0.Size.Height) Then
-                        Me.ElevatorPhys.Location = New Point(Me.ElevatorPhys.Location.X, Me.ElevatorPhys.Location.Y + 1)
-                    ElseIf (direction = 1 And Me.ElevatorPhys.Location.Y = Me.PositionSensor3.Location.Y) Or (direction = -1 And (Me.ElevatorPhys.Location.Y + Me.ElevatorPhys.Size.Height) = (Me.PositionSensor2.Location.Y + Me.PositionSensor2.Size.Height)) Then
-                        System.Threading.Thread.Sleep(1000)
-                        direction = 0
-                        If index_current_floor < index_last_saved_floor Then
-                            index_current_floor = index_inc(index_current_floor)
+                    Case 2
+                        If direction = 1 And Not Me.ElevatorPhys.Location.Y = Me.PositionSensor3.Location.Y Then
+                            Me.ElevatorPhys.Location = New Point(Me.ElevatorPhys.Location.X, Me.ElevatorPhys.Location.Y - 1)
+                        ElseIf direction = -1 And Not (Me.ElevatorPhys.Location.Y + Me.ElevatorPhys.Size.Height) = (Me.PositionSensor2.Location.Y + Me.PositionSensor0.Size.Height) Then
+                            Me.ElevatorPhys.Location = New Point(Me.ElevatorPhys.Location.X, Me.ElevatorPhys.Location.Y + 1)
+                        ElseIf (direction = 1 And Me.ElevatorPhys.Location.Y = Me.PositionSensor3.Location.Y) Or (direction = -1 And (Me.ElevatorPhys.Location.Y + Me.ElevatorPhys.Size.Height) = (Me.PositionSensor2.Location.Y + Me.PositionSensor2.Size.Height)) Then
+                            System.Threading.Thread.Sleep(1000)
+                            direction = 0
+                            If index_current_floor < index_last_saved_floor Then
+                                index_current_floor = index_inc(index_current_floor)
+                            End If
                         End If
-                    End If
-                Case 3
-                    If direction = 1 And Not Me.ElevatorPhys.Location.Y = Me.PositionSensor4.Location.Y Then
-                        Me.ElevatorPhys.Location = New Point(Me.ElevatorPhys.Location.X, Me.ElevatorPhys.Location.Y - 1)
-                    ElseIf direction = -1 And Not (Me.ElevatorPhys.Location.Y + Me.ElevatorPhys.Size.Height) = (Me.PositionSensor3.Location.Y + Me.PositionSensor0.Size.Height) Then
-                        Me.ElevatorPhys.Location = New Point(Me.ElevatorPhys.Location.X, Me.ElevatorPhys.Location.Y + 1)
-                    ElseIf (direction = 1 And Me.ElevatorPhys.Location.Y = Me.PositionSensor4.Location.Y) Or (direction = -1 And (Me.ElevatorPhys.Location.Y + Me.ElevatorPhys.Size.Height) = (Me.PositionSensor3.Location.Y + Me.PositionSensor3.Size.Height)) Then
-                        System.Threading.Thread.Sleep(1000)
-                        direction = 0
-                        If index_current_floor < index_last_saved_floor Then
-                            index_current_floor = index_inc(index_current_floor)
+                    Case 3
+                        If direction = 1 And Not Me.ElevatorPhys.Location.Y = Me.PositionSensor4.Location.Y Then
+                            Me.ElevatorPhys.Location = New Point(Me.ElevatorPhys.Location.X, Me.ElevatorPhys.Location.Y - 1)
+                        ElseIf direction = -1 And Not (Me.ElevatorPhys.Location.Y + Me.ElevatorPhys.Size.Height) = (Me.PositionSensor3.Location.Y + Me.PositionSensor0.Size.Height) Then
+                            Me.ElevatorPhys.Location = New Point(Me.ElevatorPhys.Location.X, Me.ElevatorPhys.Location.Y + 1)
+                        ElseIf (direction = 1 And Me.ElevatorPhys.Location.Y = Me.PositionSensor4.Location.Y) Or (direction = -1 And (Me.ElevatorPhys.Location.Y + Me.ElevatorPhys.Size.Height) = (Me.PositionSensor3.Location.Y + Me.PositionSensor3.Size.Height)) Then
+                            System.Threading.Thread.Sleep(1000)
+                            direction = 0
+                            If index_current_floor < index_last_saved_floor Then
+                                index_current_floor = index_inc(index_current_floor)
+                            End If
                         End If
-                    End If
-            End Select
-        End If
+                End Select
+            End If
 
-        'gestion allumage LEDS
-        If Me.PositionSensor0.Location.Y > (Me.ElevatorPhys.Location.Y) And Me.PositionSensor0.Location.Y < (Me.ElevatorPhys.Location.Y + Me.ElevatorPhys.Size.Height) Then
-            Me.LedSensor0.BackColor = System.Drawing.Color.Red
+            'gestion allumage LEDS
+            If Me.PositionSensor0.Location.Y > (Me.ElevatorPhys.Location.Y) And Me.PositionSensor0.Location.Y < (Me.ElevatorPhys.Location.Y + Me.ElevatorPhys.Size.Height) Then
+                Me.LedSensor0.BackColor = System.Drawing.Color.Red
 
-            Me.LedSensor1.BackColor = System.Drawing.Color.WhiteSmoke
+                Me.LedSensor1.BackColor = System.Drawing.Color.WhiteSmoke
 
-            last_sensor_checked = 0
-        ElseIf Me.PositionSensor1.Location.Y > (Me.ElevatorPhys.Location.Y) And Me.PositionSensor1.Location.Y < (Me.ElevatorPhys.Location.Y + Me.ElevatorPhys.Size.Height) Then
-            Me.LedSensor1.BackColor = System.Drawing.Color.Red
+                last_sensor_checked = 0
+            ElseIf Me.PositionSensor1.Location.Y > (Me.ElevatorPhys.Location.Y) And Me.PositionSensor1.Location.Y < (Me.ElevatorPhys.Location.Y + Me.ElevatorPhys.Size.Height) Then
+                Me.LedSensor1.BackColor = System.Drawing.Color.Red
 
-            Me.LedSensor0.BackColor = System.Drawing.Color.WhiteSmoke
-            Me.LedSensor2.BackColor = System.Drawing.Color.WhiteSmoke
+                Me.LedSensor0.BackColor = System.Drawing.Color.WhiteSmoke
+                Me.LedSensor2.BackColor = System.Drawing.Color.WhiteSmoke
 
-            last_sensor_checked = 1
-        ElseIf Me.PositionSensor2.Location.Y > (Me.ElevatorPhys.Location.Y) And Me.PositionSensor2.Location.Y < (Me.ElevatorPhys.Location.Y + Me.ElevatorPhys.Size.Height) Then
-            Me.LedSensor2.BackColor = System.Drawing.Color.Red
+                last_sensor_checked = 1
+            ElseIf Me.PositionSensor2.Location.Y > (Me.ElevatorPhys.Location.Y) And Me.PositionSensor2.Location.Y < (Me.ElevatorPhys.Location.Y + Me.ElevatorPhys.Size.Height) Then
+                Me.LedSensor2.BackColor = System.Drawing.Color.Red
 
-            Me.LedSensor1.BackColor = System.Drawing.Color.WhiteSmoke
-            Me.LedSensor3.BackColor = System.Drawing.Color.WhiteSmoke
+                Me.LedSensor1.BackColor = System.Drawing.Color.WhiteSmoke
+                Me.LedSensor3.BackColor = System.Drawing.Color.WhiteSmoke
 
-            last_sensor_checked = 2
-        ElseIf Me.PositionSensor3.Location.Y > (Me.ElevatorPhys.Location.Y) And Me.PositionSensor3.Location.Y < (Me.ElevatorPhys.Location.Y + Me.ElevatorPhys.Size.Height) Then
-            Me.LedSensor3.BackColor = System.Drawing.Color.Red
+                last_sensor_checked = 2
+            ElseIf Me.PositionSensor3.Location.Y > (Me.ElevatorPhys.Location.Y) And Me.PositionSensor3.Location.Y < (Me.ElevatorPhys.Location.Y + Me.ElevatorPhys.Size.Height) Then
+                Me.LedSensor3.BackColor = System.Drawing.Color.Red
 
-            Me.LedSensor2.BackColor = System.Drawing.Color.WhiteSmoke
-            Me.LedSensor4.BackColor = System.Drawing.Color.WhiteSmoke
+                Me.LedSensor2.BackColor = System.Drawing.Color.WhiteSmoke
+                Me.LedSensor4.BackColor = System.Drawing.Color.WhiteSmoke
 
-            last_sensor_checked = 3
-        ElseIf (Me.PositionSensor4.Location.Y) > (Me.ElevatorPhys.Location.Y) And Me.PositionSensor4.Location.Y < (Me.ElevatorPhys.Location.Y + Me.ElevatorPhys.Size.Height) Then
-            Me.LedSensor4.BackColor = System.Drawing.Color.Red
+                last_sensor_checked = 3
+            ElseIf (Me.PositionSensor4.Location.Y) > (Me.ElevatorPhys.Location.Y) And Me.PositionSensor4.Location.Y < (Me.ElevatorPhys.Location.Y + Me.ElevatorPhys.Size.Height) Then
+                Me.LedSensor4.BackColor = System.Drawing.Color.Red
 
-            Me.LedSensor3.BackColor = System.Drawing.Color.WhiteSmoke
+                Me.LedSensor3.BackColor = System.Drawing.Color.WhiteSmoke
 
-            last_sensor_checked = 4
-        Else
-            Me.LedSensor0.BackColor = System.Drawing.Color.WhiteSmoke
-            Me.LedSensor1.BackColor = System.Drawing.Color.WhiteSmoke
-            Me.LedSensor2.BackColor = System.Drawing.Color.WhiteSmoke
-            Me.LedSensor3.BackColor = System.Drawing.Color.WhiteSmoke
-            Me.LedSensor4.BackColor = System.Drawing.Color.WhiteSmoke
+                last_sensor_checked = 4
+            Else
+                Me.LedSensor0.BackColor = System.Drawing.Color.WhiteSmoke
+                Me.LedSensor1.BackColor = System.Drawing.Color.WhiteSmoke
+                Me.LedSensor2.BackColor = System.Drawing.Color.WhiteSmoke
+                Me.LedSensor3.BackColor = System.Drawing.Color.WhiteSmoke
+                Me.LedSensor4.BackColor = System.Drawing.Color.WhiteSmoke
+            End If
         End If
     End Sub
 
