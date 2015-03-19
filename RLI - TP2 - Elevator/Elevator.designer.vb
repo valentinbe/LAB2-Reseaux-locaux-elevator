@@ -385,7 +385,7 @@ Partial Class Elevator
         '
         'Timer1
         '
-        Me.Timer1.Interval = 10
+        Me.Timer1.Interval = 2000
         '
         'Elevator
         '
