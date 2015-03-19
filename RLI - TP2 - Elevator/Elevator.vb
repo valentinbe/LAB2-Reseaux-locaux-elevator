@@ -221,23 +221,23 @@ Public Class Elevator
 
 
                 ' On determine le capteur qui a été activé si cest le cas
-                If LedSensor0 = 0 And System.Convert.ToBoolean() = 1 Then
-                    last_sensor_checked = 0
-                ElseIf LedSensor1 = 0 And System.Convert.ToBoolean() = 1 Then
-                    last_sensor_checked = 1
-                ElseIf LedSensor2 = 0 And System.Convert.ToBoolean() = 1 Then
-                    last_sensor_checked = 2
-                ElseIf LedSensor3 = 0 And System.Convert.ToBoolean() = 1 Then
-                    last_sensor_checked = 3
-                ElseIf LedSensor4 = 0 And System.Convert.ToBoolean() = 1 Then
-                    last_sensor_checked = 4
-                End If
+                'If LedSensor0 = 0 And System.Convert.ToBoolean() = 1 Then
+                '    last_sensor_checked = 0
+                'ElseIf LedSensor1 = 0 And System.Convert.ToBoolean() = 1 Then
+                '    last_sensor_checked = 1
+                'ElseIf LedSensor2 = 0 And System.Convert.ToBoolean() = 1 Then
+                '    last_sensor_checked = 2
+                'ElseIf LedSensor3 = 0 And System.Convert.ToBoolean() = 1 Then
+                '    last_sensor_checked = 3
+                'ElseIf LedSensor4 = 0 And System.Convert.ToBoolean() = 1 Then
+                '    last_sensor_checked = 4
+                'End If
 
-                LedSensor0 = System.Convert.ToBoolean()
-                LedSensor1 = System.Convert.ToBoolean()
-                LedSensor2 = System.Convert.ToBoolean()
-                LedSensor3 = System.Convert.ToBoolean()
-                LedSensor4 = System.Convert.ToBoolean()
+                'LedSensor0 = System.Convert.ToBoolean()
+                'LedSensor1 = System.Convert.ToBoolean()
+                'LedSensor2 = System.Convert.ToBoolean()
+                'LedSensor3 = System.Convert.ToBoolean()
+                'LedSensor4 = System.Convert.ToBoolean()
 
             Case &H5
                 'Pour le moment peu utile
@@ -334,7 +334,7 @@ Public Class Elevator
                     direction = 0
             End Select
 
-            Select Case floor_memory(index_current_floor)
+            Select Case floor_memory(index_current_floor) 'C'est le client qui calcule la position de l'ascenseur, par conséquent il n'a  pas accès à l'information Elevator.phys.location, seulement les infos de capteurs de modbus.
                 Case 0
                     If direction = 1 And Not Me.ElevatorPhys.Location.Y = Me.PositionSensor1.Location.Y Then
                         Me.ElevatorPhys.Location = New Point(Me.ElevatorPhys.Location.X, Me.ElevatorPhys.Location.Y - 1)
