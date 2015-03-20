@@ -8,16 +8,10 @@ Public Class Elevator
     Private serverIsRunning As Boolean = False
     Private clientIsRunning As Boolean = False
     Private direction As Integer = 0
-    'Private last_sensor_checked As Integer = 0
-    'Private called_floor As Integer = 10
-    'Private floor_memory As Integer() = {10, 10, 10, 10, 10, 10, 10}
-    'Private index_current_floor As Integer
-    'Private index_last_saved_floor As Integer
     Private level As Byte
     Private elevatorMoving As Boolean
     Private datagram(12) As Byte
     Private transactionID As Short = 0
-    Private dataReceived As Boolean = False
 
 #Region "not to be touched"
     Private Sub ConnectToServer_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles ConnectToServer.Click
@@ -143,14 +137,13 @@ Public Class Elevator
         'MessageBox.Show("Server says :" + Encoding.ASCII.GetString(e.ReceivedBytes), "I am Client")
 
         Dim LedStatusBoolean(4) As Boolean
-        dataReceived = True
 
         Select Case e.ReceivedBytes(7)
 
             Case &H1
                 'On récupère l'état des bobines
-                CoilUP.Checked = Convert.ToBoolean(e.ReceivedBytes(9))
-                CoilDown.Checked = Convert.ToBoolean((e.ReceivedBytes(9) And &H2 >> 1))
+                CoilUP.Checked = Convert.ToBoolean(e.ReceivedBytes(9) And &H1)
+                CoilDown.Checked = Convert.ToBoolean((e.ReceivedBytes(9) >> 1) And &H1)
             Case &H2
                 LedStatusBoolean(0) = Convert.ToBoolean(e.ReceivedBytes(9) And &H1)
                 LedStatusBoolean(1) = Convert.ToBoolean((e.ReceivedBytes(9) >> 1) And &H1)
@@ -158,7 +151,6 @@ Public Class Elevator
                 LedStatusBoolean(3) = Convert.ToBoolean((e.ReceivedBytes(9) >> 3) And &H1)
                 LedStatusBoolean(4) = Convert.ToBoolean((e.ReceivedBytes(9) >> 4) And &H1)
 
-                'Pas certain que ce test serve à grand chose.
                 If Not e.ReceivedBytes(9) = 0 Then
                     elevatorMoving = False
 
@@ -170,31 +162,40 @@ Public Class Elevator
                     End If
 
                     If LedStatusBoolean(1) Then
-                        LedSensor0.BackColor = System.Drawing.Color.Red
+                        LedSensor1.BackColor = System.Drawing.Color.Red
                         level = 1
                     ElseIf Not LedStatusBoolean(1) Then
-                        LedSensor0.BackColor = System.Drawing.Color.WhiteSmoke
+                        LedSensor1.BackColor = System.Drawing.Color.WhiteSmoke
                     End If
+
                     'En l'état actuel des choses, le capteur 2 n'est jamais actif
                     If LedStatusBoolean(2) Then
-                        LedSensor0.BackColor = System.Drawing.Color.Red
+                        LedSensor2.BackColor = System.Drawing.Color.Red
                     ElseIf Not LedStatusBoolean(2) Then
-                        LedSensor0.BackColor = System.Drawing.Color.WhiteSmoke
+                        LedSensor2.BackColor = System.Drawing.Color.WhiteSmoke
                     End If
+
                     If LedStatusBoolean(3) Then
-                        LedSensor0.BackColor = System.Drawing.Color.Red
+                        LedSensor3.BackColor = System.Drawing.Color.Red
                         level = 2
                     ElseIf Not LedStatusBoolean(3) Then
-                        LedSensor0.BackColor = System.Drawing.Color.WhiteSmoke
+                        LedSensor3.BackColor = System.Drawing.Color.WhiteSmoke
                     End If
+
                     If LedStatusBoolean(4) Then
-                        LedSensor0.BackColor = System.Drawing.Color.Red
+                        LedSensor4.BackColor = System.Drawing.Color.Red
                         level = 3
                     ElseIf Not LedStatusBoolean(4) Then
                         LedSensor4.BackColor = System.Drawing.Color.WhiteSmoke
                     End If
+
                 ElseIf e.ReceivedBytes(9) = 0 Then
                     elevatorMoving = True
+                    LedSensor0.BackColor = System.Drawing.Color.WhiteSmoke
+                    LedSensor1.BackColor = System.Drawing.Color.WhiteSmoke
+                    LedSensor2.BackColor = System.Drawing.Color.WhiteSmoke
+                    LedSensor3.BackColor = System.Drawing.Color.WhiteSmoke
+                    LedSensor4.BackColor = System.Drawing.Color.WhiteSmoke
                 End If
 
             Case &H5
@@ -208,7 +209,6 @@ Public Class Elevator
         'Add some stuff to interpret messages (and remove the next line!)
         'Bytes are in e.ReceivedBytes and you can encore the bytes to string using Encoding.ASCII.GetString(e.ReceivedBytes)
         'MessageBox.Show("Client says :" + Encoding.ASCII.GetString(e.ReceivedBytes), "I am Server")
-        dataReceived = True
         transactionID = e.ReceivedBytes(0) 'Peu utile pour le moment
 
         Select Case (e.ReceivedBytes(7))
@@ -224,6 +224,7 @@ Public Class Elevator
 
     End Sub
 
+#Region "Server_coil_control"
     'quand on appuie sur coil up
     Private Sub CoilUP_CheckedChanged(sender As Object, e As EventArgs) Handles CoilUP.CheckedChanged
         If serverIsRunning Then
@@ -244,25 +245,16 @@ Public Class Elevator
             End If
         End If
     End Sub
+#End Region
 
-    ''fonction qui modifie les coilup et coil down en fonction de la direction demandée
-    'Private Sub mouvement(direction As Integer)
-    '    If direction = -1 Then
-    '        WriteMultipleCoilsMaster(0, 2, New Byte() {2})
-    '    ElseIf direction = 1 Then
-    '        WriteMultipleCoilsMaster(0, 2, New Byte() {1})
-    '    Else
-    '        WriteMultipleCoilsMaster(0, 2, New Byte() {0})
-    '    End If
-    'End Sub
 
     Private Sub Timer1_Tick(sender As Object, e As EventArgs) Handles Timer1.Tick
         If serverIsRunning Then ' si on est l'esclave
             ' on bouge en fonction de letat des coils
             If direction = -1 Then
-                ElevatorPhys.Location = New Point(ElevatorPhys.Location.X, ElevatorPhys.Location.Y + 2)
+                ElevatorPhys.Location = New Point(ElevatorPhys.Location.X, ElevatorPhys.Location.Y + 5)
             ElseIf direction = 1 Then
-                ElevatorPhys.Location = New Point(ElevatorPhys.Location.X, ElevatorPhys.Location.Y - 2)
+                ElevatorPhys.Location = New Point(ElevatorPhys.Location.X, ElevatorPhys.Location.Y - 5)
             Else
                 ' on ne bouge pas
             End If
@@ -288,24 +280,6 @@ Public Class Elevator
                 LedSensor2.BackColor = System.Drawing.Color.WhiteSmoke
                 LedSensor4.BackColor = System.Drawing.Color.WhiteSmoke
 
-                'ElseIf Me.PositionSensor1.Location.Y > (Me.ElevatorPhys.Location.Y) And Me.PositionSensor1.Location.Y < (Me.ElevatorPhys.Location.Y + Me.ElevatorPhys.Size.Height) Then
-                '    Me.LedSensor1.BackColor = System.Drawing.Color.Red
-
-                '    Me.LedSensor0.BackColor = System.Drawing.Color.WhiteSmoke
-                '    Me.LedSensor2.BackColor = System.Drawing.Color.WhiteSmoke
-
-                'ElseIf Me.PositionSensor2.Location.Y > (Me.ElevatorPhys.Location.Y) And Me.PositionSensor2.Location.Y < (Me.ElevatorPhys.Location.Y + Me.ElevatorPhys.Size.Height) Then
-                '    Me.LedSensor2.BackColor = System.Drawing.Color.Red
-
-                '    Me.LedSensor1.BackColor = System.Drawing.Color.WhiteSmoke
-                '    Me.LedSensor3.BackColor = System.Drawing.Color.WhiteSmoke
-
-                'ElseIf Me.PositionSensor3.Location.Y > (Me.ElevatorPhys.Location.Y) And Me.PositionSensor3.Location.Y < (Me.ElevatorPhys.Location.Y + Me.ElevatorPhys.Size.Height) Then
-                '    Me.LedSensor3.BackColor = System.Drawing.Color.Red
-
-                '    Me.LedSensor2.BackColor = System.Drawing.Color.WhiteSmoke
-                '    Me.LedSensor4.BackColor = System.Drawing.Color.WhiteSmoke
-
             ElseIf (PositionSensor4.Location.Y) > (ElevatorPhys.Location.Y) And PositionSensor4.Location.Y < (ElevatorPhys.Location.Y + ElevatorPhys.Size.Height) Then
                 LedSensor4.BackColor = System.Drawing.Color.Red
 
@@ -325,53 +299,89 @@ Public Class Elevator
         End If
     End Sub
 
-    'Private Function index_inc(index As Integer) As Integer
-    '    If index = 6 Then
-    '        index = 0
-    '    Else
-    '        index = index + 1
-    '    End If
-    '    Return index
-    'End Function
-
+#Region "Client_control_buttons"
     Private Sub ButtonCallFloor0_Click(sender As Object, e As EventArgs) Handles ButtonCallFloor0.Click
         'Si on est côté client, que l'ascenseur côté serveur est immobile et n'est pas à l'étage 0, alors:
         If Not serverIsRunning And elevatorMoving = False And level <> 0 Then
 
             WriteMultipleCoilsMaster(0, 2, New Byte() {2})
+            ReadMultipleCoilsMaster(0, 2)
 
             Do Until level = 0
-                Console.WriteLine("Ascenseur en mouvement\n")
+                Application.DoEvents()
             Loop
 
             'Dès que l'ascenseur a atteint 0, on l'arrête
             WriteMultipleCoilsMaster(0, 2, New Byte() {0})
+            ReadMultipleCoilsMaster(0, 2)
+            ElevatorPhys.Location = New Point(ElevatorPhys.Location.X, 500)
         End If
     End Sub
 
-    Private Sub ButtonCallFloor1_Click(sender As Object, e As EventArgs) Handles ButtonCallFloor1.Click
-        If Not serverIsRunning And elevatorMoving = False Then
 
+    Private Sub ButtonCallFloor1_Click(sender As Object, e As EventArgs) Handles ButtonCallFloor1.Click
+        If Not serverIsRunning And elevatorMoving = False And level <> 1 Then
+            'Dans quelle direction doit-on aller?
+            If Math.Sign(1 - level) = -1 Then
+                'On descend
+                WriteMultipleCoilsMaster(0, 2, New Byte() {2})
+                ReadMultipleCoilsMaster(0, 2)
+                Do Until level = 1
+                    Application.DoEvents()
+                Loop
+
+                'Dès que l'ascenseur a atteint 0, on l'arrête
+                WriteMultipleCoilsMaster(0, 2, New Byte() {0})
+                ReadMultipleCoilsMaster(0, 2)
+                ElevatorPhys.Location = New Point(ElevatorPhys.Location.X, 335)
+
+                'Dans quelle direction doit-on aller?
+            ElseIf Math.Sign(1 - level) = 1 Then
+                'On monte
+                WriteMultipleCoilsMaster(0, 2, New Byte() {1})
+                ReadMultipleCoilsMaster(0, 2)
+                Do Until level = 1
+                    Application.DoEvents()
+                Loop
+
+                'Dès que l'ascenseur a atteint 0, on l'arrête
+                WriteMultipleCoilsMaster(0, 2, New Byte() {0})
+                ReadMultipleCoilsMaster(0, 2)
+                ElevatorPhys.Location = New Point(ElevatorPhys.Location.X, 335)
+            End If
         End If
     End Sub
 
     Private Sub ButtonCallFloor2_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles ButtonCallFloor2.Click
-        If Not serverIsRunning And elevatorMoving = False Then
-            'ReadMultipleCoilsMaster(0, 2)
+        If Not serverIsRunning And elevatorMoving = False And level <> 2 Then
+            'Dans quelle direction doit-on aller?
+            If Math.Sign(2 - level) = -1 Then
+                'On descend
+                WriteMultipleCoilsMaster(0, 2, New Byte() {2})
+                ReadMultipleCoilsMaster(0, 2)
+                Do Until level = 2
+                    Application.DoEvents()
+                Loop
 
-            ''On attend la réponse'
-            'Do Until dataReceived
-            '    Application.DoEvents()
-            'Loop
-            'dataReceived = False
+                'Dès que l'ascenseur a atteint 0, on l'arrête
+                WriteMultipleCoilsMaster(0, 2, New Byte() {0})
+                ReadMultipleCoilsMaster(0, 2)
+                ElevatorPhys.Location = New Point(ElevatorPhys.Location.X, 185)
 
-            'If CoilDown.Checked = False And CoilUP.Checked = False Then
+                'Dans quelle direction doit-on aller?
+            ElseIf Math.Sign(2 - level) = 1 Then
+                'On monte
+                WriteMultipleCoilsMaster(0, 2, New Byte() {1})
+                ReadMultipleCoilsMaster(0, 2)
+                Do Until level = 2
+                    Application.DoEvents()
+                Loop
 
-            'ElseIf CoilDown.Checked = False And CoilUP.Checked = True Then
-
-            'ElseIf CoilDown.Checked = True And CoilUP.Checked = False Then
-
-            'End If
+                'Dès que l'ascenseur a atteint 0, on l'arrête
+                WriteMultipleCoilsMaster(0, 2, New Byte() {0})
+                ReadMultipleCoilsMaster(0, 2)
+                ElevatorPhys.Location = New Point(ElevatorPhys.Location.X, 185)
+            End If
         End If
     End Sub
 
@@ -380,15 +390,18 @@ Public Class Elevator
         If Not serverIsRunning And elevatorMoving = False And level <> 3 Then
 
             WriteMultipleCoilsMaster(0, 2, New Byte() {1})
-
+            ReadMultipleCoilsMaster(0, 2)
             Do Until level = 3
                 Application.DoEvents()
             Loop
 
             'Dès que l'ascenseur a atteint 0, on l'arrête
             WriteMultipleCoilsMaster(0, 2, New Byte() {0})
+            ReadMultipleCoilsMaster(0, 2)
+            ElevatorPhys.Location = New Point(ElevatorPhys.Location.X, 25)
         End If
     End Sub
+#End Region
 
 #Region "MODBUS Server_to_Client"
 
@@ -412,7 +425,7 @@ Public Class Elevator
                 datagram(8) = 1
 
                 temp1 = Convert.ToByte(CoilUP.Checked) And &H1
-                temp2 = Convert.ToByte(CoilUP.Checked) And &H1
+                temp2 = Convert.ToByte(CoilDown.Checked) And &H1
                 temp2 = temp2 << 1
                 datagram(9) = temp1 + temp2
 
@@ -449,10 +462,10 @@ Public Class Elevator
 
                 If LedSensor2.BackColor.Equals(System.Drawing.Color.WhiteSmoke) Then
                     SensorStatus(2) = 0 And &H1
-                    SensorStatus(2) = SensorStatus(1) << 2
+                    SensorStatus(2) = SensorStatus(2) << 2
                 ElseIf LedSensor2.BackColor.Equals(System.Drawing.Color.Red) Then
                     SensorStatus(2) = 1 And &H1
-                    SensorStatus(2) = SensorStatus(1) << 2
+                    SensorStatus(2) = SensorStatus(2) << 2
                 End If
 
                 If LedSensor3.BackColor.Equals(System.Drawing.Color.WhiteSmoke) Then

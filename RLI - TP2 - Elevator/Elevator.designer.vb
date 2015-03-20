@@ -317,7 +317,7 @@ Partial Class Elevator
         Me.ElevatorPhys.BackColor = System.Drawing.SystemColors.Control
         Me.ElevatorPhys.BackgroundImage = CType(resources.GetObject("ElevatorPhys.BackgroundImage"),System.Drawing.Image)
         Me.ElevatorPhys.InitialImage = CType(resources.GetObject("ElevatorPhys.InitialImage"),System.Drawing.Image)
-        Me.ElevatorPhys.Location = New System.Drawing.Point(355, 50)
+        Me.ElevatorPhys.Location = New System.Drawing.Point(355, 500)
         Me.ElevatorPhys.Name = "ElevatorPhys"
         Me.ElevatorPhys.Size = New System.Drawing.Size(140, 140)
         Me.ElevatorPhys.TabIndex = 21
@@ -385,7 +385,7 @@ Partial Class Elevator
         '
         'Timer1
         '
-        Me.Timer1.Interval = 2000
+        Me.Timer1.Interval = 500
         '
         'Elevator
         '
