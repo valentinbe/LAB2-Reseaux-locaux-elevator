@@ -67,12 +67,12 @@ Partial Class Elevator
         Me.PositionSensor4 = New System.Windows.Forms.Label()
         Me.Panel2 = New System.Windows.Forms.Panel()
         Me.Timer1 = New System.Windows.Forms.Timer(Me.components)
-        Me.PanelConnexion.SuspendLayout()
-        CType(Me.PictureBox1, System.ComponentModel.ISupportInitialize).BeginInit()
-        Me.PanelSensors.SuspendLayout()
-        CType(Me.ElevatorPhys, System.ComponentModel.ISupportInitialize).BeginInit()
-        Me.Panel1.SuspendLayout()
-        Me.SuspendLayout()
+        Me.PanelConnexion.SuspendLayout
+        CType(Me.PictureBox1,System.ComponentModel.ISupportInitialize).BeginInit
+        Me.PanelSensors.SuspendLayout
+        CType(Me.ElevatorPhys,System.ComponentModel.ISupportInitialize).BeginInit
+        Me.Panel1.SuspendLayout
+        Me.SuspendLayout
         '
         'ConnectToServer
         '
@@ -82,7 +82,7 @@ Partial Class Elevator
         Me.ConnectToServer.Size = New System.Drawing.Size(77, 37)
         Me.ConnectToServer.TabIndex = 0
         Me.ConnectToServer.Text = "Connect to the Server"
-        Me.ConnectToServer.UseVisualStyleBackColor = True
+        Me.ConnectToServer.UseVisualStyleBackColor = true
         '
         'LauchServer
         '
@@ -92,7 +92,7 @@ Partial Class Elevator
         Me.LauchServer.Size = New System.Drawing.Size(77, 38)
         Me.LauchServer.TabIndex = 1
         Me.LauchServer.Text = "Launch the Server"
-        Me.LauchServer.UseVisualStyleBackColor = True
+        Me.LauchServer.UseVisualStyleBackColor = true
         '
         'PanelConnexion
         '
@@ -108,26 +108,26 @@ Partial Class Elevator
         'LabelConnexion
         '
         Me.LabelConnexion.Anchor = System.Windows.Forms.AnchorStyles.None
-        Me.LabelConnexion.AutoSize = True
-        Me.LabelConnexion.Font = New System.Drawing.Font("Elephant", 14.25!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.LabelConnexion.AutoSize = true
+        Me.LabelConnexion.Font = New System.Drawing.Font("Microsoft Sans Serif", 14.25!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0,Byte))
         Me.LabelConnexion.Location = New System.Drawing.Point(1, 0)
         Me.LabelConnexion.Name = "LabelConnexion"
-        Me.LabelConnexion.Size = New System.Drawing.Size(129, 25)
+        Me.LabelConnexion.Size = New System.Drawing.Size(117, 24)
         Me.LabelConnexion.TabIndex = 2
         Me.LabelConnexion.Text = "Connection"
         '
         'PictureBox1
         '
-        Me.PictureBox1.Image = CType(resources.GetObject("PictureBox1.Image"), System.Drawing.Image)
+        Me.PictureBox1.Image = CType(resources.GetObject("PictureBox1.Image"),System.Drawing.Image)
         Me.PictureBox1.Location = New System.Drawing.Point(12, 12)
         Me.PictureBox1.Name = "PictureBox1"
         Me.PictureBox1.Size = New System.Drawing.Size(245, 222)
         Me.PictureBox1.TabIndex = 6
-        Me.PictureBox1.TabStop = False
+        Me.PictureBox1.TabStop = false
         '
         'PositionSensor3
         '
-        Me.PositionSensor3.AutoSize = True
+        Me.PositionSensor3.AutoSize = true
         Me.PositionSensor3.Location = New System.Drawing.Point(265, 175)
         Me.PositionSensor3.Name = "PositionSensor3"
         Me.PositionSensor3.Size = New System.Drawing.Size(78, 13)
@@ -136,7 +136,7 @@ Partial Class Elevator
         '
         'PositionSensor2
         '
-        Me.PositionSensor2.AutoSize = True
+        Me.PositionSensor2.AutoSize = true
         Me.PositionSensor2.Location = New System.Drawing.Point(265, 325)
         Me.PositionSensor2.Name = "PositionSensor2"
         Me.PositionSensor2.Size = New System.Drawing.Size(78, 13)
@@ -145,7 +145,7 @@ Partial Class Elevator
         '
         'PositionSensor1
         '
-        Me.PositionSensor1.AutoSize = True
+        Me.PositionSensor1.AutoSize = true
         Me.PositionSensor1.Location = New System.Drawing.Point(265, 475)
         Me.PositionSensor1.Name = "PositionSensor1"
         Me.PositionSensor1.Size = New System.Drawing.Size(78, 13)
@@ -154,7 +154,7 @@ Partial Class Elevator
         '
         'PositionSensor0
         '
-        Me.PositionSensor0.AutoSize = True
+        Me.PositionSensor0.AutoSize = true
         Me.PositionSensor0.Location = New System.Drawing.Point(265, 625)
         Me.PositionSensor0.Name = "PositionSensor0"
         Me.PositionSensor0.Size = New System.Drawing.Size(78, 13)
@@ -168,7 +168,7 @@ Partial Class Elevator
         Me.ButtonCallFloor3.Size = New System.Drawing.Size(75, 23)
         Me.ButtonCallFloor3.TabIndex = 15
         Me.ButtonCallFloor3.Text = "Call Floor 3"
-        Me.ButtonCallFloor3.UseVisualStyleBackColor = True
+        Me.ButtonCallFloor3.UseVisualStyleBackColor = true
         '
         'ButtonCallFloor2
         '
@@ -177,7 +177,7 @@ Partial Class Elevator
         Me.ButtonCallFloor2.Size = New System.Drawing.Size(75, 23)
         Me.ButtonCallFloor2.TabIndex = 16
         Me.ButtonCallFloor2.Text = "Call Floor 2"
-        Me.ButtonCallFloor2.UseVisualStyleBackColor = True
+        Me.ButtonCallFloor2.UseVisualStyleBackColor = true
         '
         'ButtonCallFloor1
         '
@@ -186,7 +186,7 @@ Partial Class Elevator
         Me.ButtonCallFloor1.Size = New System.Drawing.Size(75, 23)
         Me.ButtonCallFloor1.TabIndex = 17
         Me.ButtonCallFloor1.Text = "Call Floor 1"
-        Me.ButtonCallFloor1.UseVisualStyleBackColor = True
+        Me.ButtonCallFloor1.UseVisualStyleBackColor = true
         '
         'ButtonCallFloor0
         '
@@ -195,7 +195,7 @@ Partial Class Elevator
         Me.ButtonCallFloor0.Size = New System.Drawing.Size(75, 23)
         Me.ButtonCallFloor0.TabIndex = 18
         Me.ButtonCallFloor0.Text = "Call Floor 0"
-        Me.ButtonCallFloor0.UseVisualStyleBackColor = True
+        Me.ButtonCallFloor0.UseVisualStyleBackColor = true
         '
         'PanelSensors
         '
@@ -218,7 +218,7 @@ Partial Class Elevator
         '
         'LabelLedSensor4
         '
-        Me.LabelLedSensor4.AutoSize = True
+        Me.LabelLedSensor4.AutoSize = true
         Me.LabelLedSensor4.Location = New System.Drawing.Point(121, 33)
         Me.LabelLedSensor4.Name = "LabelLedSensor4"
         Me.LabelLedSensor4.Size = New System.Drawing.Size(13, 13)
@@ -235,7 +235,7 @@ Partial Class Elevator
         '
         'LabelLedSensor3
         '
-        Me.LabelLedSensor3.AutoSize = True
+        Me.LabelLedSensor3.AutoSize = true
         Me.LabelLedSensor3.Location = New System.Drawing.Point(96, 33)
         Me.LabelLedSensor3.Name = "LabelLedSensor3"
         Me.LabelLedSensor3.Size = New System.Drawing.Size(13, 13)
@@ -244,7 +244,7 @@ Partial Class Elevator
         '
         'LabelLedSensor2
         '
-        Me.LabelLedSensor2.AutoSize = True
+        Me.LabelLedSensor2.AutoSize = true
         Me.LabelLedSensor2.Location = New System.Drawing.Point(70, 33)
         Me.LabelLedSensor2.Name = "LabelLedSensor2"
         Me.LabelLedSensor2.Size = New System.Drawing.Size(13, 13)
@@ -253,7 +253,7 @@ Partial Class Elevator
         '
         'LabelLedSensor1
         '
-        Me.LabelLedSensor1.AutoSize = True
+        Me.LabelLedSensor1.AutoSize = true
         Me.LabelLedSensor1.Location = New System.Drawing.Point(44, 33)
         Me.LabelLedSensor1.Name = "LabelLedSensor1"
         Me.LabelLedSensor1.Size = New System.Drawing.Size(13, 13)
@@ -262,7 +262,7 @@ Partial Class Elevator
         '
         'LabelLedSensor0
         '
-        Me.LabelLedSensor0.AutoSize = True
+        Me.LabelLedSensor0.AutoSize = true
         Me.LabelLedSensor0.Location = New System.Drawing.Point(18, 33)
         Me.LabelLedSensor0.Name = "LabelLedSensor0"
         Me.LabelLedSensor0.Size = New System.Drawing.Size(13, 13)
@@ -304,24 +304,24 @@ Partial Class Elevator
         'LabelSensors
         '
         Me.LabelSensors.Anchor = System.Windows.Forms.AnchorStyles.None
-        Me.LabelSensors.AutoSize = True
-        Me.LabelSensors.Font = New System.Drawing.Font("Elephant", 12.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.LabelSensors.AutoSize = true
+        Me.LabelSensors.Font = New System.Drawing.Font("Microsoft Sans Serif", 12!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0,Byte))
         Me.LabelSensors.Location = New System.Drawing.Point(3, 0)
         Me.LabelSensors.Name = "LabelSensors"
-        Me.LabelSensors.Size = New System.Drawing.Size(145, 21)
+        Me.LabelSensors.Size = New System.Drawing.Size(131, 20)
         Me.LabelSensors.TabIndex = 3
         Me.LabelSensors.Text = "Sensors/Inputs"
         '
         'ElevatorPhys
         '
         Me.ElevatorPhys.BackColor = System.Drawing.SystemColors.Control
-        Me.ElevatorPhys.BackgroundImage = CType(resources.GetObject("ElevatorPhys.BackgroundImage"), System.Drawing.Image)
-        Me.ElevatorPhys.InitialImage = CType(resources.GetObject("ElevatorPhys.InitialImage"), System.Drawing.Image)
-        Me.ElevatorPhys.Location = New System.Drawing.Point(355, 505)
+        Me.ElevatorPhys.BackgroundImage = CType(resources.GetObject("ElevatorPhys.BackgroundImage"),System.Drawing.Image)
+        Me.ElevatorPhys.InitialImage = CType(resources.GetObject("ElevatorPhys.InitialImage"),System.Drawing.Image)
+        Me.ElevatorPhys.Location = New System.Drawing.Point(355, 50)
         Me.ElevatorPhys.Name = "ElevatorPhys"
         Me.ElevatorPhys.Size = New System.Drawing.Size(140, 140)
         Me.ElevatorPhys.TabIndex = 21
-        Me.ElevatorPhys.TabStop = False
+        Me.ElevatorPhys.TabStop = false
         '
         'Panel1
         '
@@ -336,38 +336,38 @@ Partial Class Elevator
         '
         'CoilDown
         '
-        Me.CoilDown.AutoSize = True
+        Me.CoilDown.AutoSize = true
         Me.CoilDown.Location = New System.Drawing.Point(49, 48)
         Me.CoilDown.Name = "CoilDown"
         Me.CoilDown.Size = New System.Drawing.Size(54, 17)
         Me.CoilDown.TabIndex = 5
         Me.CoilDown.Text = "Down"
-        Me.CoilDown.UseVisualStyleBackColor = True
+        Me.CoilDown.UseVisualStyleBackColor = true
         '
         'CoilUP
         '
-        Me.CoilUP.AutoSize = True
+        Me.CoilUP.AutoSize = true
         Me.CoilUP.Location = New System.Drawing.Point(49, 24)
         Me.CoilUP.Name = "CoilUP"
         Me.CoilUP.Size = New System.Drawing.Size(41, 17)
         Me.CoilUP.TabIndex = 4
         Me.CoilUP.Text = "UP"
-        Me.CoilUP.UseVisualStyleBackColor = True
+        Me.CoilUP.UseVisualStyleBackColor = true
         '
         'LabelCoils
         '
         Me.LabelCoils.Anchor = System.Windows.Forms.AnchorStyles.None
-        Me.LabelCoils.AutoSize = True
-        Me.LabelCoils.Font = New System.Drawing.Font("Elephant", 12.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.LabelCoils.AutoSize = true
+        Me.LabelCoils.Font = New System.Drawing.Font("Microsoft Sans Serif", 12!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0,Byte))
         Me.LabelCoils.Location = New System.Drawing.Point(8, 0)
         Me.LabelCoils.Name = "LabelCoils"
-        Me.LabelCoils.Size = New System.Drawing.Size(134, 21)
+        Me.LabelCoils.Size = New System.Drawing.Size(117, 20)
         Me.LabelCoils.TabIndex = 3
         Me.LabelCoils.Text = "Coils/Outputs"
         '
         'PositionSensor4
         '
-        Me.PositionSensor4.AutoSize = True
+        Me.PositionSensor4.AutoSize = true
         Me.PositionSensor4.Location = New System.Drawing.Point(265, 25)
         Me.PositionSensor4.Name = "PositionSensor4"
         Me.PositionSensor4.Size = New System.Drawing.Size(78, 13)
@@ -389,7 +389,7 @@ Partial Class Elevator
         '
         'Elevator
         '
-        Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
+        Me.AutoScaleDimensions = New System.Drawing.SizeF(6!, 13!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.ClientSize = New System.Drawing.Size(787, 655)
         Me.Controls.Add(Me.PositionSensor4)
@@ -409,18 +409,18 @@ Partial Class Elevator
         Me.Controls.Add(Me.Panel2)
         Me.Name = "Elevator"
         Me.Text = "Elevator - RLI - TP3"
-        Me.PanelConnexion.ResumeLayout(False)
-        Me.PanelConnexion.PerformLayout()
-        CType(Me.PictureBox1, System.ComponentModel.ISupportInitialize).EndInit()
-        Me.PanelSensors.ResumeLayout(False)
-        Me.PanelSensors.PerformLayout()
-        CType(Me.ElevatorPhys, System.ComponentModel.ISupportInitialize).EndInit()
-        Me.Panel1.ResumeLayout(False)
-        Me.Panel1.PerformLayout()
-        Me.ResumeLayout(False)
-        Me.PerformLayout()
+        Me.PanelConnexion.ResumeLayout(false)
+        Me.PanelConnexion.PerformLayout
+        CType(Me.PictureBox1,System.ComponentModel.ISupportInitialize).EndInit
+        Me.PanelSensors.ResumeLayout(false)
+        Me.PanelSensors.PerformLayout
+        CType(Me.ElevatorPhys,System.ComponentModel.ISupportInitialize).EndInit
+        Me.Panel1.ResumeLayout(false)
+        Me.Panel1.PerformLayout
+        Me.ResumeLayout(false)
+        Me.PerformLayout
 
-    End Sub
+End Sub
     Friend WithEvents ConnectToServer As System.Windows.Forms.Button
     Friend WithEvents LauchServer As System.Windows.Forms.Button
     Friend WithEvents PanelConnexion As System.Windows.Forms.Panel

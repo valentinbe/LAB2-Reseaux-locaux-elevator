@@ -15,44 +15,44 @@ Namespace AsyncSocket
         End Sub
 
         Private Sub InitializeComponent()
-            Me.ServerName = New System.Windows.Forms.TextBox
-            Me.Valid = New System.Windows.Forms.Button
-            Me.SuspendLayout()
+            ServerName = New System.Windows.Forms.TextBox
+            Valid = New System.Windows.Forms.Button
+            SuspendLayout()
             '
             'ServerName
             '
-            Me.ServerName.Location = New System.Drawing.Point(12, 12)
-            Me.ServerName.Name = "ServerName"
-            Me.ServerName.Size = New System.Drawing.Size(199, 20)
-            Me.ServerName.TabIndex = 0
-            Me.ServerName.Text = "IP Address / Serveur Name"
+            ServerName.Location = New System.Drawing.Point(12, 12)
+            ServerName.Name = "ServerName"
+            ServerName.Size = New System.Drawing.Size(199, 20)
+            ServerName.TabIndex = 0
+            ServerName.Text = "IP Address / Serveur Name"
             '
             'Valid
             '
-            Me.Valid.Location = New System.Drawing.Point(83, 38)
-            Me.Valid.Name = "Valid"
-            Me.Valid.Size = New System.Drawing.Size(60, 23)
-            Me.Valid.TabIndex = 1
-            Me.Valid.Text = "OK"
-            Me.Valid.UseVisualStyleBackColor = True
+            Valid.Location = New System.Drawing.Point(83, 38)
+            Valid.Name = "Valid"
+            Valid.Size = New System.Drawing.Size(60, 23)
+            Valid.TabIndex = 1
+            Valid.Text = "OK"
+            Valid.UseVisualStyleBackColor = True
             '
             'ServerNameForm
             '
-            Me.AutoScaleBaseSize = New System.Drawing.Size(5, 13)
-            Me.ClientSize = New System.Drawing.Size(223, 69)
-            Me.Controls.Add(Me.Valid)
-            Me.Controls.Add(Me.ServerName)
-            Me.Name = "ServerNameForm"
-            Me.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent
-            Me.Text = "Enter Server Name"
-            Me.ResumeLayout(False)
-            Me.PerformLayout()
+            AutoScaleBaseSize = New System.Drawing.Size(5, 13)
+            ClientSize = New System.Drawing.Size(223, 69)
+            Controls.Add(Valid)
+            Controls.Add(ServerName)
+            Name = "ServerNameForm"
+            StartPosition = System.Windows.Forms.FormStartPosition.CenterParent
+            Text = "Enter Server Name"
+            ResumeLayout(False)
+            PerformLayout()
 
         End Sub
 
         Private Sub Valid_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles Valid.Click
-            Elevator.ServerName = Me.ServerName.Text()
-            Me.Close()
+            Elevator.ServerName = ServerName.Text()
+            Close()
         End Sub
 
         Private Sub ServerName_KeyUp(ByVal sender As System.Object, ByVal e As System.Windows.Forms.KeyEventArgs) Handles ServerName.KeyUp

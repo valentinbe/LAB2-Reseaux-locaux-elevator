@@ -22,48 +22,48 @@ Public Class Elevator
 #Region "not to be touched"
     Private Sub ConnectToServer_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles ConnectToServer.Click
         If Not clientIsRunning Then
-            Me.clientIsRunning = True
+            clientIsRunning = True
             Dim serverNameForm As AsyncSocket.ServerNameForm = New AsyncSocket.ServerNameForm
             serverNameForm.ShowDialog()
-            Me.ConnectToServer.ForeColor = System.Drawing.Color.Green
-            Me.ConnectToServer.Text = "Disconnect From the Server"
+            ConnectToServer.ForeColor = System.Drawing.Color.Green
+            ConnectToServer.Text = "Disconnect From the Server"
 
             Try
-                Me._socket = New AsynchronousClient()
+                _socket = New AsynchronousClient()
                 _socket.AttachReceiveCallBack(AddressOf ReceivedDataFromServer)
                 TryCast(_socket, AsynchronousClient).ConnectToServer(ServerName)
             Catch ex As Exception
                 MessageBox.Show(ex.Message)
-                Me.clientIsRunning = False
-                Me.ConnectToServer.ForeColor = System.Drawing.Color.Red
-                Me.ConnectToServer.Text = "Connect To the Server"
+                clientIsRunning = False
+                ConnectToServer.ForeColor = System.Drawing.Color.Red
+                ConnectToServer.Text = "Connect To the Server"
             End Try
         Else
             If _socket IsNot Nothing Then
                 _socket.Close()
             End If
-            Me.clientIsRunning = False
-            Me.ConnectToServer.ForeColor = System.Drawing.Color.Red
-            Me.ConnectToServer.Text = "Connect To the Server"
+            clientIsRunning = False
+            ConnectToServer.ForeColor = System.Drawing.Color.Red
+            ConnectToServer.Text = "Connect To the Server"
         End If
     End Sub
 
     Private Sub LauchServer_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles LauchServer.Click
         If Not serverIsRunning Then
-            Me._socket = New AsynchronousServer()
-            Me._socket.AttachReceiveCallBack(AddressOf ReceivedDataFromClient)
+            _socket = New AsynchronousServer()
+            _socket.AttachReceiveCallBack(AddressOf ReceivedDataFromClient)
             TryCast(_socket, AsynchronousServer).RunServer()
 
-            Me.serverIsRunning = True
-            Me.LauchServer.ForeColor = System.Drawing.Color.Green
-            Me.LauchServer.Text = "Stop the Server"
+            serverIsRunning = True
+            LauchServer.ForeColor = System.Drawing.Color.Green
+            LauchServer.Text = "Stop the Server"
         Else
             If _socket IsNot Nothing Then
                 _socket.Close()
             End If
-            Me.serverIsRunning = False
-            Me.LauchServer.ForeColor = System.Drawing.Color.Red
-            Me.LauchServer.Text = "Launch the Server"
+            serverIsRunning = False
+            LauchServer.ForeColor = System.Drawing.Color.Red
+            LauchServer.Text = "Launch the Server"
         End If
     End Sub
 
@@ -84,7 +84,7 @@ Public Class Elevator
     Public Sub SendMessageToClient(ByVal msg As Byte())
         If _socket IsNot Nothing Then
             If TryCast(_socket, AsynchronousServer) IsNot Nothing Then
-                Me._socket.SendMessage(msg)
+                _socket.SendMessage(msg)
             End If
         End If
     End Sub
@@ -92,7 +92,7 @@ Public Class Elevator
     Public Sub SendMessageToServer(ByVal msg As Byte())
         If _socket IsNot Nothing Then
             If TryCast(_socket, AsynchronousClient) IsNot Nothing Then
-                Me._socket.SendMessage(msg)
+                _socket.SendMessage(msg)
                 transactionID = transactionID + 1
             End If
         End If
@@ -105,11 +105,11 @@ Public Class Elevator
         ' InvokeRequired required compares the thread ID of the
         ' calling thread to the thread ID of the creating thread.
         ' If these threads are different, it returns true.
-        If Me.CoilUP.InvokeRequired Then
+        If CoilUP.InvokeRequired Then
             Dim d As New SetCoilUPCallback(AddressOf SetCoilUP)
-            Me.Invoke(d, New Object() {[val]})
+            Invoke(d, New Object() {[val]})
         Else
-            Me.CoilUP.Checked = [val]
+            CoilUP.Checked = [val]
         End If
     End Sub
 
@@ -120,11 +120,11 @@ Public Class Elevator
         ' InvokeRequired required compares the thread ID of the
         ' calling thread to the thread ID of the creating thread.
         ' If these threads are different, it returns true.
-        If Me.CoilDown.InvokeRequired Then
+        If CoilDown.InvokeRequired Then
             Dim d As New SetCoilDownCallback(AddressOf SetCoilDown)
-            Me.Invoke(d, New Object() {[val]})
+            Invoke(d, New Object() {[val]})
         Else
-            Me.CoilDown.Checked = [val]
+            CoilDown.Checked = [val]
         End If
     End Sub
 
@@ -149,14 +149,14 @@ Public Class Elevator
 
             Case &H1
                 'On récupère l'état des bobines
-                CoilUP.Checked = System.Convert.ToBoolean(e.ReceivedBytes(9) And &H1)
-                CoilDown.Checked = System.Convert.ToBoolean((e.ReceivedBytes(9) >> 1) And &H1)
+                CoilUP.Checked = Convert.ToBoolean(e.ReceivedBytes(9))
+                CoilDown.Checked = Convert.ToBoolean((e.ReceivedBytes(9) And &H2 >> 1))
             Case &H2
-                LedStatusBoolean(0) = System.Convert.ToBoolean(e.ReceivedBytes(9) And &H1)
-                LedStatusBoolean(1) = System.Convert.ToBoolean((e.ReceivedBytes(9) >> 1) And &H1)
-                LedStatusBoolean(2) = System.Convert.ToBoolean((e.ReceivedBytes(9) >> 2) And &H1)
-                LedStatusBoolean(3) = System.Convert.ToBoolean((e.ReceivedBytes(9) >> 3) And &H1)
-                LedStatusBoolean(4) = System.Convert.ToBoolean((e.ReceivedBytes(9) >> 4) And &H1)
+                LedStatusBoolean(0) = Convert.ToBoolean(e.ReceivedBytes(9) And &H1)
+                LedStatusBoolean(1) = Convert.ToBoolean((e.ReceivedBytes(9) >> 1) And &H1)
+                LedStatusBoolean(2) = Convert.ToBoolean((e.ReceivedBytes(9) >> 2) And &H1)
+                LedStatusBoolean(3) = Convert.ToBoolean((e.ReceivedBytes(9) >> 3) And &H1)
+                LedStatusBoolean(4) = Convert.ToBoolean((e.ReceivedBytes(9) >> 4) And &H1)
 
                 'Pas certain que ce test serve à grand chose.
                 If Not e.ReceivedBytes(9) = 0 Then
@@ -167,37 +167,38 @@ Public Class Elevator
                         level = 0
                     ElseIf Not LedStatusBoolean(0) Then
                         LedSensor0.BackColor = System.Drawing.Color.WhiteSmoke
+                    End If
 
-                    ElseIf LedStatusBoolean(1) Then
+                    If LedStatusBoolean(1) Then
                         LedSensor0.BackColor = System.Drawing.Color.Red
                         level = 1
                     ElseIf Not LedStatusBoolean(1) Then
                         LedSensor0.BackColor = System.Drawing.Color.WhiteSmoke
-
-                        'En l'état actuel des choses, le capteur 2 n'est jamais actif
-                    ElseIf LedStatusBoolean(2) Then
+                    End If
+                    'En l'état actuel des choses, le capteur 2 n'est jamais actif
+                    If LedStatusBoolean(2) Then
                         LedSensor0.BackColor = System.Drawing.Color.Red
                     ElseIf Not LedStatusBoolean(2) Then
                         LedSensor0.BackColor = System.Drawing.Color.WhiteSmoke
-
-                    ElseIf LedStatusBoolean(3) Then
+                    End If
+                    If LedStatusBoolean(3) Then
                         LedSensor0.BackColor = System.Drawing.Color.Red
                         level = 2
                     ElseIf Not LedStatusBoolean(3) Then
                         LedSensor0.BackColor = System.Drawing.Color.WhiteSmoke
-
-                    ElseIf LedStatusBoolean(4) Then
+                    End If
+                    If LedStatusBoolean(4) Then
                         LedSensor0.BackColor = System.Drawing.Color.Red
                         level = 3
                     ElseIf Not LedStatusBoolean(4) Then
-                        LedSensor0.BackColor = System.Drawing.Color.WhiteSmoke
+                        LedSensor4.BackColor = System.Drawing.Color.WhiteSmoke
                     End If
                 ElseIf e.ReceivedBytes(9) = 0 Then
                     elevatorMoving = True
                 End If
 
             Case &H5
-                'Pour le moment peu utile
+            'Pour le moment peu utile
             Case &HF
                 'Pour le moment peu utile
         End Select
@@ -226,9 +227,9 @@ Public Class Elevator
     'quand on appuie sur coil up
     Private Sub CoilUP_CheckedChanged(sender As Object, e As EventArgs) Handles CoilUP.CheckedChanged
         If serverIsRunning Then
-            If Me.CoilUP.Checked Then
+            If CoilUP.Checked Then
                 direction = 1
-            ElseIf Not Me.CoilUP.Checked Then
+            ElseIf Not CoilUP.Checked Then
                 direction = 0
             End If
         End If
@@ -236,9 +237,9 @@ Public Class Elevator
     'quand on appuie sur coil down
     Private Sub CoilDown_CheckedChanged(sender As Object, e As EventArgs) Handles CoilDown.CheckedChanged
         If serverIsRunning Then ' si on est l'esclave
-            If Me.CoilDown.Checked Then
+            If CoilDown.Checked Then
                 direction = -1
-            ElseIf Not Me.CoilDown.Checked Then
+            ElseIf Not CoilDown.Checked Then
                 direction = 0
             End If
         End If
@@ -259,33 +260,33 @@ Public Class Elevator
         If serverIsRunning Then ' si on est l'esclave
             ' on bouge en fonction de letat des coils
             If direction = -1 Then
-                Me.ElevatorPhys.Location = New Point(Me.ElevatorPhys.Location.X, Me.ElevatorPhys.Location.Y + 10)
+                ElevatorPhys.Location = New Point(ElevatorPhys.Location.X, ElevatorPhys.Location.Y + 2)
             ElseIf direction = 1 Then
-                Me.ElevatorPhys.Location = New Point(Me.ElevatorPhys.Location.X, Me.ElevatorPhys.Location.Y - 10)
+                ElevatorPhys.Location = New Point(ElevatorPhys.Location.X, ElevatorPhys.Location.Y - 2)
             Else
                 ' on ne bouge pas
             End If
 
             'gestion allumage LEDS
-            If Me.PositionSensor0.Location.Y > (Me.ElevatorPhys.Location.Y) And Me.PositionSensor0.Location.Y < (Me.ElevatorPhys.Location.Y + Me.ElevatorPhys.Size.Height) Then
-                Me.LedSensor0.BackColor = System.Drawing.Color.Red
+            If PositionSensor0.Location.Y > (ElevatorPhys.Location.Y) And PositionSensor0.Location.Y < (ElevatorPhys.Location.Y + ElevatorPhys.Size.Height) Then
+                LedSensor0.BackColor = System.Drawing.Color.Red
 
-                Me.LedSensor1.BackColor = System.Drawing.Color.WhiteSmoke
+                LedSensor1.BackColor = System.Drawing.Color.WhiteSmoke
 
-            ElseIf Me.PositionSensor2.Location.Y < (Me.ElevatorPhys.Location.Y) And Me.PositionSensor1.Location.Y > (Me.ElevatorPhys.Location.Y + Me.ElevatorPhys.Size.Height) Then
-                Me.LedSensor1.BackColor = System.Drawing.Color.Red
+            ElseIf PositionSensor2.Location.Y < (ElevatorPhys.Location.Y) And PositionSensor1.Location.Y > (ElevatorPhys.Location.Y + ElevatorPhys.Size.Height) Then
+                LedSensor1.BackColor = System.Drawing.Color.Red
 
-                Me.LedSensor0.BackColor = System.Drawing.Color.WhiteSmoke
-                Me.LedSensor2.BackColor = System.Drawing.Color.WhiteSmoke
-                Me.LedSensor3.BackColor = System.Drawing.Color.WhiteSmoke
-                Me.LedSensor4.BackColor = System.Drawing.Color.WhiteSmoke
-            ElseIf Me.PositionSensor3.Location.Y < (Me.ElevatorPhys.Location.Y) And Me.PositionSensor2.Location.Y > (Me.ElevatorPhys.Location.Y + Me.ElevatorPhys.Size.Height) Then
-                Me.LedSensor3.BackColor = System.Drawing.Color.Red
+                LedSensor0.BackColor = System.Drawing.Color.WhiteSmoke
+                LedSensor2.BackColor = System.Drawing.Color.WhiteSmoke
+                LedSensor3.BackColor = System.Drawing.Color.WhiteSmoke
+                LedSensor4.BackColor = System.Drawing.Color.WhiteSmoke
+            ElseIf PositionSensor3.Location.Y < (ElevatorPhys.Location.Y) And PositionSensor2.Location.Y > (ElevatorPhys.Location.Y + ElevatorPhys.Size.Height) Then
+                LedSensor3.BackColor = System.Drawing.Color.Red
 
-                Me.LedSensor0.BackColor = System.Drawing.Color.WhiteSmoke
-                Me.LedSensor1.BackColor = System.Drawing.Color.WhiteSmoke
-                Me.LedSensor2.BackColor = System.Drawing.Color.WhiteSmoke
-                Me.LedSensor4.BackColor = System.Drawing.Color.WhiteSmoke
+                LedSensor0.BackColor = System.Drawing.Color.WhiteSmoke
+                LedSensor1.BackColor = System.Drawing.Color.WhiteSmoke
+                LedSensor2.BackColor = System.Drawing.Color.WhiteSmoke
+                LedSensor4.BackColor = System.Drawing.Color.WhiteSmoke
 
                 'ElseIf Me.PositionSensor1.Location.Y > (Me.ElevatorPhys.Location.Y) And Me.PositionSensor1.Location.Y < (Me.ElevatorPhys.Location.Y + Me.ElevatorPhys.Size.Height) Then
                 '    Me.LedSensor1.BackColor = System.Drawing.Color.Red
@@ -305,16 +306,16 @@ Public Class Elevator
                 '    Me.LedSensor2.BackColor = System.Drawing.Color.WhiteSmoke
                 '    Me.LedSensor4.BackColor = System.Drawing.Color.WhiteSmoke
 
-            ElseIf (Me.PositionSensor4.Location.Y) > (Me.ElevatorPhys.Location.Y) And Me.PositionSensor4.Location.Y < (Me.ElevatorPhys.Location.Y + Me.ElevatorPhys.Size.Height) Then
-                Me.LedSensor4.BackColor = System.Drawing.Color.Red
+            ElseIf (PositionSensor4.Location.Y) > (ElevatorPhys.Location.Y) And PositionSensor4.Location.Y < (ElevatorPhys.Location.Y + ElevatorPhys.Size.Height) Then
+                LedSensor4.BackColor = System.Drawing.Color.Red
 
-                Me.LedSensor3.BackColor = System.Drawing.Color.WhiteSmoke
+                LedSensor3.BackColor = System.Drawing.Color.WhiteSmoke
             Else
-                Me.LedSensor0.BackColor = System.Drawing.Color.WhiteSmoke
-                Me.LedSensor1.BackColor = System.Drawing.Color.WhiteSmoke
-                Me.LedSensor2.BackColor = System.Drawing.Color.WhiteSmoke
-                Me.LedSensor3.BackColor = System.Drawing.Color.WhiteSmoke
-                Me.LedSensor4.BackColor = System.Drawing.Color.WhiteSmoke
+                LedSensor0.BackColor = System.Drawing.Color.WhiteSmoke
+                LedSensor1.BackColor = System.Drawing.Color.WhiteSmoke
+                LedSensor2.BackColor = System.Drawing.Color.WhiteSmoke
+                LedSensor3.BackColor = System.Drawing.Color.WhiteSmoke
+                LedSensor4.BackColor = System.Drawing.Color.WhiteSmoke
             End If
 
         ElseIf clientIsRunning Then ' si on est le maitre
@@ -375,19 +376,17 @@ Public Class Elevator
     End Sub
 
     Private Sub ButtonCallFloor3_Click(sender As Object, e As EventArgs) Handles ButtonCallFloor3.Click
-        If Not serverIsRunning And elevatorMoving = False Then
-            'Si on est côté client, que l'ascenseur côté serveur est immobile et n'est pas à l'étage 0, alors:
-            If Not serverIsRunning And elevatorMoving = False And level <> 3 Then
+        'Si on est côté client, que l'ascenseur côté serveur est immobile et n'est pas à l'étage 0, alors:
+        If Not serverIsRunning And elevatorMoving = False And level <> 3 Then
 
-                WriteMultipleCoilsMaster(0, 2, New Byte() {1})
+            WriteMultipleCoilsMaster(0, 2, New Byte() {1})
 
-                Do Until level = 3
-                    Application.DoEvents()
-                Loop
+            Do Until level = 3
+                Application.DoEvents()
+            Loop
 
-                'Dès que l'ascenseur a atteint 0, on l'arrête
-                WriteMultipleCoilsMaster(0, 2, New Byte() {0})
-            End If
+            'Dès que l'ascenseur a atteint 0, on l'arrête
+            WriteMultipleCoilsMaster(0, 2, New Byte() {0})
         End If
     End Sub
 
@@ -412,8 +411,8 @@ Public Class Elevator
                 'Le nombre d'octet contenant l'état des bobines vaudra toujours 1 (Seulement deux bobines => 0x00, 0x01... 0x03)
                 datagram(8) = 1
 
-                temp1 = System.Convert.ToByte(CoilUP.Checked) And &H1
-                temp2 = System.Convert.ToByte(CoilUP.Checked) And &H1
+                temp1 = Convert.ToByte(CoilUP.Checked) And &H1
+                temp2 = Convert.ToByte(CoilUP.Checked) And &H1
                 temp2 = temp2 << 1
                 datagram(9) = temp1 + temp2
 
@@ -496,9 +495,9 @@ Public Class Elevator
                 'Si non dans les deux cas, alors:
                 Select Case ReceivedDatagram(9)
                     Case 0
-                        SetCoilUP(System.Convert.ToBoolean(ReceivedDatagram(10)))
+                        SetCoilUP(Convert.ToBoolean(ReceivedDatagram(10)))
                     Case 1
-                        SetCoilDown(System.Convert.ToBoolean(ReceivedDatagram(10)))
+                        SetCoilDown(Convert.ToBoolean(ReceivedDatagram(10)))
                 End Select
             End If
 

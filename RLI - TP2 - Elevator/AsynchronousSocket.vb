@@ -19,7 +19,7 @@ Namespace AsyncSocket
         End Sub
 
         Public Sub AttachReceiveCallBack(ByRef receiveCallback As MyEventHandler)
-            Me._receiveCallback = receiveCallback
+            _receiveCallback = receiveCallback
         End Sub
 
         Public MustOverride Sub ReceiveMessage()
@@ -42,7 +42,7 @@ Namespace AsyncSocket
             Private _receivedBytes As Byte()
 
             Public Sub New(ByVal bytes As Byte())
-                Me._receivedBytes = bytes
+                _receivedBytes = bytes
             End Sub
 
             Public ReadOnly Property ReceivedBytes() As Byte()
@@ -62,11 +62,11 @@ Namespace AsyncSocket
             Private _localsocketClientIsShutingDown As Boolean = False
 
             Public Sub RunServer()
-                Me._socketServer = New Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp)
-                Me._socketServer.Bind(New IPEndPoint(IPAddress.Any, 15))
-                Me._socketServer.Listen(1)
-                Me._socketServer.BeginAccept(AddressOf ConnectionAcceptCallback, Me._socketServer)
-                Me._started = True
+                _socketServer = New Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp)
+                _socketServer.Bind(New IPEndPoint(IPAddress.Any, 15))
+                _socketServer.Listen(1)
+                _socketServer.BeginAccept(AddressOf ConnectionAcceptCallback, _socketServer)
+                _started = True
                 'Me.DisplayMessageInfo("Server launched")
             End Sub
 
@@ -74,10 +74,10 @@ Namespace AsyncSocket
                 Try
                     Dim socket As Socket = CType(asyncResult.AsyncState, Socket)
                     If Not (socket.Handle.ToInt32 = -1) Then
-                        Me._socketClient = socket.EndAccept(asyncResult)
-                        Me._localsocketClientIsShutingDown = False
+                        _socketClient = socket.EndAccept(asyncResult)
+                        _localsocketClientIsShutingDown = False
                         'Me.DisplayMessageInfo("A client is connected")
-                        Me._socketClient.BeginReceive(Me._readbuf, 0, Me._readbuf.Length, SocketFlags.None, AddressOf ReceiveCallback, Me._socketClient)
+                        _socketClient.BeginReceive(_readbuf, 0, _readbuf.Length, SocketFlags.None, AddressOf ReceiveCallback, _socketClient)
                     End If
                 Catch ex As SocketException
                     'Me.DisplayMessageError(ex.Message)
@@ -87,8 +87,8 @@ Namespace AsyncSocket
             End Sub
 
             Public Overrides Sub ReceiveMessage()
-                If Not (Me._socketClient Is Nothing) AndAlso Me._socketClient.Connected Then
-                    Me._socketClient.BeginReceive(Me._readbuf, 0, Me._readbuf.Length, SocketFlags.None, AddressOf ReceiveCallback, Me._socketClient)
+                If Not (_socketClient Is Nothing) AndAlso _socketClient.Connected Then
+                    _socketClient.BeginReceive(_readbuf, 0, _readbuf.Length, SocketFlags.None, AddressOf ReceiveCallback, _socketClient)
                 Else
                     'Me.DisplayMessageInfo("No client connected")
                 End If
@@ -102,19 +102,19 @@ Namespace AsyncSocket
                     If read > 0 Then
                         'Me.formElevator.NewMessageFromClient(Me.readbuf)
 
-                        If Me._receiveCallback IsNot Nothing Then
+                        If _receiveCallback IsNot Nothing Then
                             Dim data(read - 1) As Byte
-                            Array.Copy(Me._readbuf, data, read)
-                            Me._receiveCallback(Me, New AsyncEventArgs(data))
+                            Array.Copy(_readbuf, data, read)
+                            _receiveCallback(Me, New AsyncEventArgs(data))
                         End If
 
-                        Array.Clear(Me._readbuf, 0, Me._readbuf.Length)
-                        Me._socketClient.BeginReceive(Me._readbuf, 0, Me._readbuf.Length, SocketFlags.None, AddressOf ReceiveCallback, Me._socketClient)
+                        Array.Clear(_readbuf, 0, _readbuf.Length)
+                        _socketClient.BeginReceive(_readbuf, 0, _readbuf.Length, SocketFlags.None, AddressOf ReceiveCallback, _socketClient)
                     End If
-                    If read = 0 AndAlso Not Me._localsocketClientIsShutingDown Then
+                    If read = 0 AndAlso Not _localsocketClientIsShutingDown Then
                         socket.Close()
                         'Me.DisplayMessageInfo("Client Socket is closing")
-                        Me._socketServer.BeginAccept(AddressOf ConnectionAcceptCallback, Me._socketServer)
+                        _socketServer.BeginAccept(AddressOf ConnectionAcceptCallback, _socketServer)
                     End If
                 Catch ex As SocketException
                     'Me.DisplayMessageError(ex.Message)
@@ -124,9 +124,9 @@ Namespace AsyncSocket
             End Sub
 
             Public Overrides Sub SendMessage(ByVal message As Byte())
-                If Not (Me._socketClient Is Nothing) AndAlso Me._socketClient.Connected AndAlso message IsNot Nothing Then
-                    Me._sendbuf = message
-                    Me._socketClient.BeginSend(Me._sendbuf, 0, Me._sendbuf.Length, SocketFlags.None, AddressOf SendCallback, Me._socketClient)
+                If Not (_socketClient Is Nothing) AndAlso _socketClient.Connected AndAlso message IsNot Nothing Then
+                    _sendbuf = message
+                    _socketClient.BeginSend(_sendbuf, 0, _sendbuf.Length, SocketFlags.None, AddressOf SendCallback, _socketClient)
                 ElseIf message IsNot Nothing Then
                     'Me.DisplayMessageInfo("No client connected")
                 End If
@@ -136,7 +136,7 @@ Namespace AsyncSocket
                 Try
                     Dim socket As Socket = CType(asyncResult.AsyncState, Socket)
                     Dim send As Integer = socket.EndSend(asyncResult)
-                    Array.Clear(Me._sendbuf, 0, Me._sendbuf.Length)
+                    Array.Clear(_sendbuf, 0, _sendbuf.Length)
                 Catch ex As SocketException
                     'Me.DisplayMessageError(ex.Message)
                 Catch ex As ObjectDisposedException
@@ -145,23 +145,23 @@ Namespace AsyncSocket
             End Sub
 
             Public Sub CloseClient()
-                If Not (Me._socketClient Is Nothing) AndAlso Me._socketClient.Connected Then
-                    Me._localsocketClientIsShutingDown = True
-                    Me._socketClient.Shutdown(SocketShutdown.Both)
-                    Me._socketClient.Close()
-                    Me._socketServer.BeginAccept(AddressOf ConnectionAcceptCallback, Me._socketServer)
+                If Not (_socketClient Is Nothing) AndAlso _socketClient.Connected Then
+                    _localsocketClientIsShutingDown = True
+                    _socketClient.Shutdown(SocketShutdown.Both)
+                    _socketClient.Close()
+                    _socketServer.BeginAccept(AddressOf ConnectionAcceptCallback, _socketServer)
                 End If
                 'Me.DisplayMessageInfo("Client stopped")
             End Sub
 
             Public Overrides Sub Close()
-                If Not (Me._socketClient Is Nothing) AndAlso Me._socketClient.Connected Then
+                If Not (_socketClient Is Nothing) AndAlso _socketClient.Connected Then
                     CloseClient()
                 End If
-                If Not (Me._socketServer Is Nothing) AndAlso Not (Me._socketServer.Handle.ToInt32 = -1) Then
-                    Me._socketServer.Close()
+                If Not (_socketServer Is Nothing) AndAlso Not (_socketServer.Handle.ToInt32 = -1) Then
+                    _socketServer.Close()
                 End If
-                Me._started = False
+                _started = False
                 'Me.DisplayMessageInfo("Server stopped")
             End Sub
 
@@ -175,12 +175,12 @@ Namespace AsyncSocket
             Private _localsocketClientIsShutingDown As Boolean
 
             Public Sub ConnectToServer(ByVal ServerName As String)
-                If Me._socketClient Is Nothing OrElse Not Me._socketClient.Connected Then
-                    Me._socketClient = New Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp)
+                If _socketClient Is Nothing OrElse Not _socketClient.Connected Then
+                    _socketClient = New Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp)
                     Dim ipadress As IPAddress()
                     Dim he As IPHostEntry = Dns.GetHostEntry(ServerName)
                     ipadress = he.AddressList
-                    Me._socketClient.BeginConnect(New IPEndPoint(ipadress.Last, 15), AddressOf ConnectCallback, Me._socketClient)
+                    _socketClient.BeginConnect(New IPEndPoint(ipadress.Last, 15), AddressOf ConnectCallback, _socketClient)
                 Else
                     'Me.DisplayMessageInfo("Already connected to the Server")
                 End If
@@ -189,11 +189,11 @@ Namespace AsyncSocket
             Private Sub ConnectCallback(ByVal asyncResult As IAsyncResult)
                 Try
                     Dim socket As Socket = CType(asyncResult.AsyncState, Socket)
-                    Me._socketClient = socket
+                    _socketClient = socket
                     socket.EndConnect(asyncResult)
                     'Me.DisplayMessageInfo("Connected to the Server")
-                    Me._localsocketClientIsShutingDown = False
-                    Me._socketClient.BeginReceive(Me._readbuf, 0, Me._readbuf.Length, SocketFlags.None, AddressOf ReceiveCallback, Me._socketClient)
+                    _localsocketClientIsShutingDown = False
+                    _socketClient.BeginReceive(_readbuf, 0, _readbuf.Length, SocketFlags.None, AddressOf ReceiveCallback, _socketClient)
                 Catch ex As SocketException
                     'Me.DisplayMessageError(ex.Message)
                 Catch ex As ObjectDisposedException
@@ -202,9 +202,9 @@ Namespace AsyncSocket
             End Sub
 
             Public Overrides Sub SendMessage(ByVal message As Byte())
-                If Not (Me._socketClient Is Nothing) AndAlso Me._socketClient.Connected AndAlso message IsNot Nothing Then
-                    Me._sendbuf = message
-                    Me._socketClient.BeginSend(Me._sendbuf, 0, Me._sendbuf.Length, SocketFlags.None, AddressOf SendCallback, Me._socketClient)
+                If Not (_socketClient Is Nothing) AndAlso _socketClient.Connected AndAlso message IsNot Nothing Then
+                    _sendbuf = message
+                    _socketClient.BeginSend(_sendbuf, 0, _sendbuf.Length, SocketFlags.None, AddressOf SendCallback, _socketClient)
                 ElseIf message IsNot Nothing Then
                     'Me.DisplayMessageInfo("No connection to the Server")
                 End If
@@ -222,8 +222,8 @@ Namespace AsyncSocket
             End Sub
 
             Public Overrides Sub ReceiveMessage()
-                If Not (Me._socketClient Is Nothing) AndAlso Me._socketClient.Connected Then
-                    Me._socketClient.BeginReceive(Me._readbuf, 0, Me._readbuf.Length, SocketFlags.None, AddressOf ReceiveCallback, Me._socketClient)
+                If Not (_socketClient Is Nothing) AndAlso _socketClient.Connected Then
+                    _socketClient.BeginReceive(_readbuf, 0, _readbuf.Length, SocketFlags.None, AddressOf ReceiveCallback, _socketClient)
                 Else
                     'Me.DisplayMessageInfo("No connection to the Server")
                 End If
@@ -234,17 +234,17 @@ Namespace AsyncSocket
                     Dim socket As Socket = CType(asyncResult.AsyncState, Socket)
                     Dim read As Integer = socket.EndReceive(asyncResult)
                     If read > 0 Then
-                        If Me._receiveCallback IsNot Nothing Then
+                        If _receiveCallback IsNot Nothing Then
                             Dim data(read - 1) As Byte
-                            Array.Copy(Me._readbuf, data, read)
+                            Array.Copy(_readbuf, data, read)
 
-                            Me._receiveCallback(Me, New AsyncEventArgs(data))
+                            _receiveCallback(Me, New AsyncEventArgs(data))
                         End If
-                        Array.Clear(Me._readbuf, 0, Me._readbuf.Length)
-                        Me._socketClient.BeginReceive(Me._readbuf, 0, Me._readbuf.Length, SocketFlags.None, AddressOf ReceiveCallback, Me._socketClient)
+                        Array.Clear(_readbuf, 0, _readbuf.Length)
+                        _socketClient.BeginReceive(_readbuf, 0, _readbuf.Length, SocketFlags.None, AddressOf ReceiveCallback, _socketClient)
                     End If
-                    If read = 0 AndAlso Not Me._localsocketClientIsShutingDown Then
-                        Me._socketClient.Close()
+                    If read = 0 AndAlso Not _localsocketClientIsShutingDown Then
+                        _socketClient.Close()
                         'Me.DisplayMessageInfo("Server Socket is closing")
                     End If
                 Catch ex As SocketException
@@ -255,11 +255,11 @@ Namespace AsyncSocket
             End Sub
 
             Public Overrides Sub Close()
-                If Not (Me._socketClient Is Nothing) AndAlso Me._socketClient.Connected Then
-                    Me._localsocketClientIsShutingDown = True
-                    Me._socketClient.Shutdown(SocketShutdown.Both)
-                    Me._socketClient.Close()
-                    Me._started = False
+                If Not (_socketClient Is Nothing) AndAlso _socketClient.Connected Then
+                    _localsocketClientIsShutingDown = True
+                    _socketClient.Shutdown(SocketShutdown.Both)
+                    _socketClient.Close()
+                    _started = False
                     'Me.DisplayMessageInfo("Connection closed")
                 End If
             End Sub
